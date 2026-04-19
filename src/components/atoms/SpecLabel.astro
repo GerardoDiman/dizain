@@ -1,0 +1,22 @@
+---
+/**
+ * SpecLabel — Technical spec key-value pair.
+ * Mimics fill-in-the-blank technical forms.
+ */
+interface Props {
+  label: string;
+  value: string;
+  class?: string;
+}
+
+const { label, value, class: className = '' } = Astro.props;
+---
+
+<div class:list={['flex flex-col gap-1', className]}>
+  <dt class="font-label text-[0.6875rem] uppercase tracking-[0.1em] text-outline">
+    {label}
+  </dt>
+  <dd class="font-body text-sm text-on-surface border-b border-outline/30 pb-1">
+    {value}
+  </dd>
+</div>

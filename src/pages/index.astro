@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import HeroSection from '@components/organisms/HeroSection.astro';
+import ProjectIndex from '@components/organisms/ProjectIndex.astro';
+import SkillsMatrix from '@components/organisms/SkillsMatrix.astro';
+import BioSection from '@components/organisms/BioSection.astro';
+import ContactSection from '@components/organisms/ContactSection.astro';
+
+import { getProfile } from '@services/profile';
+import { getPublishedProjects } from '@services/projects';
+import { getSkillsByCategory } from '@services/skills';
+
+/* ── SSG Data Fetching ── */
+let profile = null;
+let projects: Awaited<ReturnType<typeof getPublishedProjects>> = [];
+let skillsByCategory: Awaited<ReturnType<typeof getSkillsByCategory>> = {
+  software: [],
+  education: [],
+  languages: [],
+  design: [],
+};
+
+try {
+  [profile, projects, skillsByCategory] = await Promise.all([
+    getProfile(),
+    getPublishedProjects(),
+    getSkillsByCategory(),
+  ]);
+} catch (error) {
+  console.warn('[index] Data fetch error — rendering with defaults:', error);
+}
+---
+
+<BaseLayout title="ARCHIVE.01 — Mechanical Design Portfolio">
+  <HeroSection profile={profile} />
+  <ProjectIndex projects={projects} />
+  <SkillsMatrix skillsByCategory={skillsByCategory} />
+  <BioSection profile={profile} />
+  <ContactSection />
+</BaseLayout>

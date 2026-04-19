@@ -1,0 +1,19 @@
+---
+/**
+ * GhostDivider — Subtle horizontal separator.
+ * Uses outline-variant at 20% opacity (Ghost Border).
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<hr
+  class:list={[
+    'border-0 h-px bg-outline-variant/20 w-full',
+    className,
+  ]}
+  aria-hidden="true"
+/>

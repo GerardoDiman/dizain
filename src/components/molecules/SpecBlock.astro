@@ -1,0 +1,34 @@
+---
+/**
+ * SpecBlock — A block of technical specifications for a project.
+ * Uses surface-container-high for recessed, structural appearance.
+ */
+import SpecLabel from '@components/atoms/SpecLabel.astro';
+import type { ProjectSpec } from '@schemas/project';
+
+interface Props {
+  specs: ProjectSpec[];
+  class?: string;
+}
+
+const { specs, class: className = '' } = Astro.props;
+
+const sorted = [...specs].sort((a, b) => a.sort_order - b.sort_order);
+---
+
+<div
+  class:list={[
+    'bg-surface-container-high p-6 lg:p-8',
+    className,
+  ]}
+>
+  <h4 class="font-headline text-xs uppercase tracking-[0.2em] text-outline mb-6">
+    Technical Specifications
+  </h4>
+
+  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+    {sorted.map((spec) => (
+      <SpecLabel label={spec.label} value={spec.value} />
+    ))}
+  </dl>
+</div>

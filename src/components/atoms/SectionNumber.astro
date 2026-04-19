@@ -1,0 +1,23 @@
+---
+/**
+ * SectionNumber — Large technical display number (01, 02, 03…).
+ * Used to guide the user through the project narrative.
+ */
+interface Props {
+  number: number;
+  class?: string;
+}
+
+const { number, class: className = '' } = Astro.props;
+const display = number.toString().padStart(2, '0');
+---
+
+<span
+  class:list={[
+    'font-headline text-[clamp(4rem,10vw,8rem)] font-bold leading-none tracking-tighter text-primary/10 dark:text-primary/15 select-none',
+    className,
+  ]}
+  aria-hidden="true"
+>
+  {display}
+</span>

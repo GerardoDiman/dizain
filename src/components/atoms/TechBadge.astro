@@ -1,0 +1,29 @@
+---
+/**
+ * TechBadge — Rectangular software/skill badge.
+ * Uses tertiary-container tokens to mimic CAD UI callouts.
+ */
+interface Props {
+  label: string;
+  variant?: 'tertiary' | 'primary' | 'secondary';
+  class?: string;
+}
+
+const { label, variant = 'tertiary', class: className = '' } = Astro.props;
+
+const variantClasses: Record<string, string> = {
+  tertiary: 'bg-tertiary-container text-on-tertiary-container dark:bg-tertiary-container dark:text-on-tertiary-container',
+  primary: 'bg-primary-container text-on-primary-container dark:bg-primary-container dark:text-on-primary-container',
+  secondary: 'bg-secondary-container text-on-secondary-container dark:bg-secondary-container dark:text-on-secondary-container',
+};
+---
+
+<span
+  class:list={[
+    'inline-block px-3 py-1.5 font-label text-[0.6875rem] uppercase tracking-[0.1em] leading-none whitespace-nowrap',
+    variantClasses[variant],
+    className,
+  ]}
+>
+  {label}
+</span>

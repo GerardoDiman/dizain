@@ -1,0 +1,22 @@
+---
+/**
+ * VerticalText — CAD-style annotation rotated -90deg.
+ * Placed along the left edge of containers.
+ */
+interface Props {
+  text: string;
+  class?: string;
+}
+
+const { text, class: className = '' } = Astro.props;
+---
+
+<span
+  class:list={[
+    'vertical-text font-label text-[0.6875rem] uppercase tracking-[0.2em] text-primary/30 dark:text-primary/20 select-none whitespace-nowrap',
+    className,
+  ]}
+  aria-hidden="true"
+>
+  {text}
+</span>

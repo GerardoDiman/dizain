@@ -1,0 +1,54 @@
+---
+/**
+ * ProjectIndex — Grid of all published project cards.
+ * Uses asymmetric grid for visual interest per design system.
+ */
+import SectionNumber from '@components/atoms/SectionNumber.astro';
+import ProjectCard from '@components/molecules/ProjectCard.astro';
+import type { Project } from '@schemas/project';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+---
+
+<section
+  class="relative bg-surface-container py-24 md:py-32"
+  id="portfolio"
+  aria-labelledby="portfolio-heading"
+>
+  <div class="max-w-7xl mx-auto px-6 md:px-8">
+    <!-- Section Header -->
+    <div class="relative mb-16 md:mb-20">
+      <SectionNumber number={1} class="absolute -top-4 -left-2 md:-left-4" />
+      <div class="relative z-10">
+        <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
+          Case Studies
+        </span>
+        <h2
+          id="portfolio-heading"
+          class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
+        >
+          Portfolio
+        </h2>
+      </div>
+    </div>
+
+    <!-- Project Grid -->
+    {projects.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+        {projects.map((project, index) => (
+          <ProjectCard project={project} index={index} />
+        ))}
+      </div>
+    ) : (
+      <div class="flex items-center justify-center py-20">
+        <p class="font-label text-sm uppercase tracking-[0.2em] text-outline">
+          Projects loading — Check back soon.
+        </p>
+      </div>
+    )}
+  </div>
+</section>

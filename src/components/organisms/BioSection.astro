@@ -1,0 +1,124 @@
+---
+/**
+ * BioSection — About the designer with asymmetric layout.
+ * Description on the left, profile image bleeding to the right.
+ */
+import SectionNumber from '@components/atoms/SectionNumber.astro';
+import VerticalText from '@components/atoms/VerticalText.astro';
+import type { Profile } from '@schemas/profile';
+
+interface Props {
+  profile: Profile | null;
+}
+
+const { profile } = Astro.props;
+---
+
+<section
+  class="relative bg-surface py-24 md:py-32 overflow-hidden"
+  id="about"
+  aria-labelledby="about-heading"
+>
+  <div class="max-w-7xl mx-auto px-6 md:px-8">
+    <!-- Section Header -->
+    <div class="relative mb-16 md:mb-20">
+      <SectionNumber number={3} class="absolute -top-4 -left-2 md:-left-4" />
+      <div class="relative z-10">
+        <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
+          About
+        </span>
+        <h2
+          id="about-heading"
+          class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
+        >
+          The Engineer
+        </h2>
+      </div>
+    </div>
+
+    <!-- Asymmetric Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <!-- Bio Text (left) -->
+      <div class="lg:col-span-7 relative">
+        <!-- Vertical annotation -->
+        <div class="absolute -left-8 top-0 hidden xl:block">
+          <VerticalText text="Professional Profile" />
+        </div>
+
+        <div class="space-y-6">
+          {profile?.bio && profile.bio.length > 0 ? (
+            profile.bio.map((paragraph) => (
+              <p class="font-body text-base md:text-lg leading-relaxed text-on-surface-variant">
+                {paragraph}
+              </p>
+            ))
+          ) : (
+            <>
+              <p class="font-body text-base md:text-lg leading-relaxed text-on-surface-variant">
+                Mechanical Design Engineer with expertise in precision CAD modeling and engineering analysis. Specializing in complex assembly design using industry-standard tools.
+              </p>
+              <p class="font-body text-base md:text-lg leading-relaxed text-on-surface-variant">
+                Committed to delivering solutions that balance form, function, and manufacturability.
+              </p>
+            </>
+          )}
+        </div>
+
+        <!-- Contact Info -->
+        {profile?.email && (
+          <div class="mt-10 flex flex-wrap gap-4">
+            <a
+              href={`mailto:${profile.email}`}
+              class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 font-headline text-xs uppercase tracking-[0.2em] hover:bg-primary-container transition-colors"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              Get in Touch
+            </a>
+            {profile.cv_url && (
+              <a
+                href={profile.cv_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 border border-outline/40 text-on-surface px-6 py-3 font-headline text-xs uppercase tracking-[0.2em] hover:bg-surface-container-high transition-colors"
+              >
+                Download CV
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+
+      <!-- Profile Image (right) -->
+      <div class="lg:col-span-5 relative">
+        <div class="relative aspect-[3/4] bg-surface-container-high overflow-hidden">
+          {profile?.profile_image_url ? (
+            <img
+              src={profile.profile_image_url}
+              alt={profile.full_name}
+              class="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div class="w-full h-full flex items-center justify-center">
+              <span class="font-headline text-8xl font-bold text-primary/10">DA</span>
+            </div>
+          )}
+
+          <!-- Image caption overlay -->
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary/80 to-transparent p-6">
+            <p class="font-headline text-sm text-on-primary uppercase tracking-widest">
+              {profile?.full_name ?? 'Designer'}
+            </p>
+            <p class="font-label text-[0.6875rem] text-on-primary/60 uppercase tracking-[0.1em] mt-1">
+              {profile?.title ?? 'Mechanical Designer'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

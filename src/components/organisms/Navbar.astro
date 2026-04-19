@@ -1,0 +1,173 @@
+---
+/**
+ * Navbar — Fixed top navigation with glassmorphism.
+ * Follows Blueprint Archive design: 0px radius, technical typography.
+ */
+interface Props {
+  activeSection?: string;
+}
+
+const { activeSection = 'portfolio' } = Astro.props;
+
+const navLinks = [
+  { href: '#portfolio', label: 'Portfolio', id: 'portfolio' },
+  { href: '#specifications', label: 'Specs', id: 'specifications' },
+  { href: '#about', label: 'About', id: 'about' },
+] as const;
+---
+
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/20">
+  <nav
+    class="flex justify-between items-center px-6 md:px-8 h-20 w-full max-w-7xl mx-auto"
+    aria-label="Main navigation"
+  >
+    <!-- Logo -->
+    <a
+      href="/"
+      class="text-xl md:text-2xl font-bold tracking-widest text-primary font-headline hover:text-primary-container transition-colors"
+      aria-label="Home"
+    >
+      ARCHIVE.01
+    </a>
+
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex gap-10 lg:gap-12 font-headline tracking-tighter uppercase text-sm">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'pb-1 transition-all duration-200',
+            activeSection === link.id
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-outline hover:text-primary',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Theme Toggle Slot (React Island will go here) -->
+      <button
+        id="theme-toggle"
+        type="button"
+        class="p-2 text-outline hover:text-primary transition-colors"
+        aria-label="Toggle dark mode"
+      >
+        <!-- Sun icon (shown in dark mode) -->
+        <svg
+          class="hidden dark:block w-5 h-5"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <!-- Moon icon (shown in light mode) -->
+        <svg
+          class="block dark:hidden w-5 h-5"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <!-- Contact CTA -->
+      <a
+        href="#contact"
+        class="hidden sm:block bg-primary text-on-primary px-6 lg:px-8 py-3 font-headline uppercase tracking-widest text-xs hover:bg-primary-container transition-colors"
+      >
+        Contact
+      </a>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-toggle"
+        type="button"
+        class="md:hidden p-2 text-outline hover:text-primary transition-colors"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden bg-surface/95 backdrop-blur-lg border-b border-outline-variant/20"
+    role="navigation"
+    aria-label="Mobile navigation"
+  >
+    <div class="flex flex-col px-8 py-6 gap-4">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="font-headline uppercase tracking-widest text-sm text-outline hover:text-primary transition-colors py-2"
+          data-mobile-link
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="#contact"
+        class="bg-primary text-on-primary px-6 py-3 font-headline uppercase tracking-widest text-xs text-center mt-2 hover:bg-primary-container transition-colors"
+        data-mobile-link
+      >
+        Contact
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  /* Theme Toggle */
+  const themeToggle = document.getElementById('theme-toggle');
+  themeToggle?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+
+  /* Mobile Menu Toggle */
+  const menuToggle = document.getElementById('mobile-menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuToggle?.addEventListener('click', () => {
+    const isOpen = mobileMenu?.classList.toggle('hidden') === false;
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  /* Close mobile menu on link click */
+  document.querySelectorAll('[data-mobile-link]').forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileMenu?.classList.add('hidden');
+      menuToggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>

@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+/* ── Dark Mode Variant ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════
+   BLUEPRINT ARCHIVE — Design System Tokens
+   Mechanical CAD Portfolio
+   ═══════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Typography ── */
+  --font-headline: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-label: "Inter", system-ui, sans-serif;
+
+  /* ── Border Radius (0px Sharp — The Engineer's World) ── */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  /* ═══ LIGHT MODE (default) ═══ */
+
+  /* ── Surface Hierarchy (No-Line Rule) ── */
+  --color-surface: #f9f9f7;
+  --color-surface-dim: #dadad8;
+  --color-surface-bright: #f9f9f7;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f4f2;
+  --color-surface-container: #eeeeec;
+  --color-surface-container-high: #e8e8e6;
+  --color-surface-container-highest: #e2e3e1;
+  --color-surface-variant: #e2e3e1;
+  --color-surface-tint: #516447;
+  --color-background: #f9f9f7;
+
+  /* ── Primary (Precision Moss) ── */
+  --color-primary: #46583c;
+  --color-primary-container: #5e7153;
+  --color-primary-fixed: #d4e9c4;
+  --color-primary-fixed-dim: #b8cda9;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #dff4cf;
+  --color-on-primary-fixed: #0f1f09;
+  --color-on-primary-fixed-variant: #3a4c31;
+
+  /* ── Secondary ── */
+  --color-secondary: #5c5f5a;
+  --color-secondary-container: #e1e3dc;
+  --color-secondary-fixed: #e1e3dc;
+  --color-secondary-fixed-dim: #c5c7c1;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #626560;
+  --color-on-secondary-fixed: #191c18;
+  --color-on-secondary-fixed-variant: #454843;
+
+  /* ── Tertiary (Technical Highlights — CAD callouts) ── */
+  --color-tertiary: #005a7b;
+  --color-tertiary-container: #1f7399;
+  --color-tertiary-fixed: #c4e7ff;
+  --color-tertiary-fixed-dim: #87cff9;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #ddf1ff;
+  --color-on-tertiary-fixed: #001e2c;
+  --color-on-tertiary-fixed-variant: #004c69;
+
+  /* ── Error ── */
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+
+  /* ── Neutral / Outline ── */
+  --color-on-surface: #1a1c1b;
+  --color-on-surface-variant: #444840;
+  --color-on-background: #1a1c1b;
+  --color-outline: #74786f;
+  --color-outline-variant: #c4c8bd;
+  --color-inverse-surface: #2f3130;
+  --color-inverse-on-surface: #f1f1ef;
+  --color-inverse-primary: #b8cda9;
+}
+
+/* ═══ DARK MODE OVERRIDES ═══ */
+.dark {
+  --color-surface: #121412;
+  --color-surface-dim: #0e100e;
+  --color-surface-bright: #1e201e;
+  --color-surface-container-lowest: #0a0c0a;
+  --color-surface-container-low: #1a1c1a;
+  --color-surface-container: #1e201e;
+  --color-surface-container-high: #282a28;
+  --color-surface-container-highest: #333533;
+  --color-surface-variant: #444840;
+  --color-surface-tint: #b8cda9;
+  --color-background: #121412;
+
+  --color-primary: #b8cda9;
+  --color-primary-container: #3a4c31;
+  --color-primary-fixed: #d4e9c4;
+  --color-primary-fixed-dim: #b8cda9;
+  --color-on-primary: #1a2e12;
+  --color-on-primary-container: #d4e9c4;
+  --color-on-primary-fixed: #0f1f09;
+  --color-on-primary-fixed-variant: #3a4c31;
+
+  --color-secondary: #c5c7c1;
+  --color-secondary-container: #454843;
+  --color-secondary-fixed: #e1e3dc;
+  --color-secondary-fixed-dim: #c5c7c1;
+  --color-on-secondary: #2e312c;
+  --color-on-secondary-container: #e1e3dc;
+  --color-on-secondary-fixed: #191c18;
+  --color-on-secondary-fixed-variant: #454843;
+
+  --color-tertiary: #87cff9;
+  --color-tertiary-container: #004c69;
+  --color-tertiary-fixed: #c4e7ff;
+  --color-tertiary-fixed-dim: #87cff9;
+  --color-on-tertiary: #003548;
+  --color-on-tertiary-container: #c4e7ff;
+  --color-on-tertiary-fixed: #001e2c;
+  --color-on-tertiary-fixed-variant: #004c69;
+
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error: #690005;
+  --color-on-error-container: #ffdad6;
+
+  --color-on-surface: #e2e3e1;
+  --color-on-surface-variant: #c4c8bd;
+  --color-on-background: #e2e3e1;
+  --color-outline: #8e918a;
+  --color-outline-variant: #444840;
+  --color-inverse-surface: #e2e3e1;
+  --color-inverse-on-surface: #2f3130;
+  --color-inverse-primary: #46583c;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CUSTOM UTILITIES
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Blueprint Grid Background ── */
+.grid-blueprint {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--color-outline) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--color-outline) 6%, transparent) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Vertical Text Annotation (CAD-style) ── */
+.vertical-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* ── Technical Glow (replaces standard box-shadow) ── */
+.tech-glow {
+  box-shadow: 0 0 40px color-mix(in oklch, var(--color-on-surface) 4%, transparent);
+}
+
+/* ── Selection Color ── */
+::selection {
+  background-color: var(--color-tertiary-fixed-dim);
+  color: var(--color-on-tertiary-fixed);
+}
+
+/* ── Focus Visible (Accessibility) ── */
+:focus-visible {
+  outline: 2px solid var(--color-tertiary);
+  outline-offset: 2px;
+}
+
+/* ── Smooth Scroll ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

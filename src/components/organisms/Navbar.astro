@@ -9,11 +9,22 @@ interface Props {
 
 const { activeSection = 'portfolio' } = Astro.props;
 
-const navLinks = [
-  { href: '#portfolio', label: 'Portfolio', id: 'portfolio' },
-  { href: '#specifications', label: 'Specs', id: 'specifications' },
-  { href: '#about', label: 'About', id: 'about' },
-] as const;
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const navItems = [
+  { label: t('nav.about'), href: `/${lang === 'es' ? '' : lang + '/'}#about` },
+  { label: t('nav.skills'), href: `/${lang === 'es' ? '' : lang + '/'}#skills` },
+  { label: t('nav.projects'), href: `/${lang === 'es' ? '' : lang + '/'}#projects` },
+  { label: t('nav.contact'), href: `/${lang === 'es' ? '' : lang + '/'}#contact` },
+];
+
+
+const otherLang = lang === 'es' ? 'en' : 'es';
+const otherLangLabel = lang === 'es' ? 'EN' : 'ES';
+const otherLangHref = lang === 'es' ? '/en/' : '/';
 ---
 
 <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/20">
@@ -23,28 +34,37 @@ const navLinks = [
   >
     <!-- Logo -->
     <a
-      href="/"
+      href={lang === 'es' ? '/' : '/en/'}
       class="text-xl md:text-2xl font-bold tracking-widest text-primary font-headline hover:text-primary-container transition-colors"
       aria-label="Home"
     >
-      ARCHIVE.01
+      {t('nav.brand')}
     </a>
 
     <!-- Desktop Navigation -->
-    <div class="hidden md:flex gap-10 lg:gap-12 font-headline tracking-tighter uppercase text-sm">
-      {navLinks.map((link) => (
-        <a
-          href={link.href}
-          class:list={[
-            'pb-1 transition-all duration-200',
-            activeSection === link.id
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-outline hover:text-primary',
-          ]}
-        >
-          {link.label}
-        </a>
-      ))}
+    <div class="hidden md:flex items-center gap-12">
+      <ul class="flex items-center gap-8">
+        {navItems.map((item) => (
+          <li>
+            <a 
+              href={item.href}
+              class="text-label-md text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="h-4 w-[1px] bg-outline-variant"></div>
+
+      <a 
+        href={otherLangHref}
+        class="text-label-md font-mono text-tertiary hover:text-primary transition-colors"
+        aria-label="Change language"
+      >
+        {otherLangLabel}
+      </a>
     </div>
 
     <!-- Actions -->
@@ -92,14 +112,6 @@ const navLinks = [
         </svg>
       </button>
 
-      <!-- Contact CTA -->
-      <a
-        href="#contact"
-        class="hidden sm:block bg-primary text-on-primary px-6 lg:px-8 py-3 font-headline uppercase tracking-widest text-xs hover:bg-primary-container transition-colors"
-      >
-        Contact
-      </a>
-
       <!-- Mobile Menu Button -->
       <button
         id="mobile-menu-toggle"
@@ -126,21 +138,20 @@ const navLinks = [
     aria-label="Mobile navigation"
   >
     <div class="flex flex-col px-8 py-6 gap-4">
-      {navLinks.map((link) => (
+      {navItems.map((item) => (
         <a
-          href={link.href}
+          href={item.href}
           class="font-headline uppercase tracking-widest text-sm text-outline hover:text-primary transition-colors py-2"
           data-mobile-link
         >
-          {link.label}
+          {item.label}
         </a>
       ))}
       <a
-        href="#contact"
-        class="bg-primary text-on-primary px-6 py-3 font-headline uppercase tracking-widest text-xs text-center mt-2 hover:bg-primary-container transition-colors"
-        data-mobile-link
+        href={otherLangHref}
+        class="font-headline uppercase tracking-widest text-sm text-tertiary hover:text-primary transition-colors py-2"
       >
-        Contact
+        {otherLangLabel}
       </a>
     </div>
   </div>

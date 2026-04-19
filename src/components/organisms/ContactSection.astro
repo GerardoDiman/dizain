@@ -1,10 +1,11 @@
 ---
-/**
- * ContactSection — CTA with contact form (React Island).
- * Blueprint grid background for visual continuity.
- */
 import SectionNumber from '@components/atoms/SectionNumber.astro';
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
+
 
 <section
   class="relative bg-primary py-24 md:py-32 overflow-hidden"
@@ -20,13 +21,13 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
       <SectionNumber number={4} class="absolute -top-4 -left-2 md:-left-4 !text-on-primary/10" />
       <div class="relative z-10">
         <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-on-primary/50">
-          Get in Touch
+          {t('contact.label')}
         </span>
         <h2
           id="contact-heading"
           class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-primary"
         >
-          Contact
+          {t('contact.title')}
         </h2>
       </div>
     </div>
@@ -36,7 +37,7 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
       <!-- Left: CTA Text -->
       <div class="flex flex-col justify-center">
         <p class="font-body text-base md:text-lg text-on-primary/70 leading-relaxed max-w-md">
-          Interested in collaboration or have a project in mind? Let's discuss how precision engineering meets design excellence.
+          {t('contact.description')}
         </p>
         <div class="mt-8 flex flex-col gap-3">
           <div class="flex items-center gap-3">
@@ -45,7 +46,7 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
               <polyline points="22,6 12,13 2,6" />
             </svg>
             <span class="font-label text-[0.6875rem] text-on-primary/50 uppercase tracking-[0.15em]">
-              Response within 24h
+              {t('contact.response_time')}
             </span>
           </div>
           <div class="flex items-center gap-3">
@@ -54,7 +55,7 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
             <span class="font-label text-[0.6875rem] text-on-primary/50 uppercase tracking-[0.15em]">
-              All inquiries welcome
+              {t('contact.inquiries_welcome')}
             </span>
           </div>
         </div>
@@ -70,7 +71,7 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
           <!-- Name -->
           <div class="flex flex-col gap-1.5">
             <label for="contact-name" class="font-label text-[0.6875rem] uppercase tracking-[0.1em] text-on-primary/50">
-              Name
+              {t('contact.form_name')}
             </label>
             <input
               type="text"
@@ -78,14 +79,14 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
               name="name"
               required
               class="bg-on-primary/5 border-0 border-b border-on-primary/30 px-4 py-3 text-on-primary font-body text-sm placeholder:text-on-primary/20 focus:border-on-primary/60 focus:outline-none transition-colors"
-              placeholder="Your full name"
+              placeholder={t('contact.placeholder_name')}
             />
           </div>
 
           <!-- Email -->
           <div class="flex flex-col gap-1.5">
             <label for="contact-email" class="font-label text-[0.6875rem] uppercase tracking-[0.1em] text-on-primary/50">
-              Email
+              {t('contact.form_email')}
             </label>
             <input
               type="email"
@@ -100,21 +101,21 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
           <!-- Company (optional) -->
           <div class="flex flex-col gap-1.5">
             <label for="contact-company" class="font-label text-[0.6875rem] uppercase tracking-[0.1em] text-on-primary/50">
-              Company <span class="text-on-primary/20">(optional)</span>
+              {t('contact.form_company')} <span class="text-on-primary/20">{t('contact.optional')}</span>
             </label>
             <input
               type="text"
               id="contact-company"
               name="company"
               class="bg-on-primary/5 border-0 border-b border-on-primary/30 px-4 py-3 text-on-primary font-body text-sm placeholder:text-on-primary/20 focus:border-on-primary/60 focus:outline-none transition-colors"
-              placeholder="Company name"
+              placeholder={t('contact.placeholder_company')}
             />
           </div>
 
           <!-- Message -->
           <div class="flex flex-col gap-1.5">
             <label for="contact-message" class="font-label text-[0.6875rem] uppercase tracking-[0.1em] text-on-primary/50">
-              Message
+              {t('contact.form_message')}
             </label>
             <textarea
               id="contact-message"
@@ -122,7 +123,7 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
               rows="4"
               required
               class="bg-on-primary/5 border-0 border-b border-on-primary/30 px-4 py-3 text-on-primary font-body text-sm placeholder:text-on-primary/20 focus:border-on-primary/60 focus:outline-none transition-colors resize-none"
-              placeholder="Describe your project or inquiry…"
+              placeholder={t('contact.placeholder_message')}
             ></textarea>
           </div>
 
@@ -131,7 +132,7 @@ import SectionNumber from '@components/atoms/SectionNumber.astro';
             type="submit"
             class="mt-2 bg-on-primary text-primary px-8 py-3.5 font-headline text-xs uppercase tracking-[0.2em] hover:bg-on-primary/90 transition-colors self-start"
           >
-            Send Message
+            {t('contact.send')}
           </button>
 
           <!-- Status -->

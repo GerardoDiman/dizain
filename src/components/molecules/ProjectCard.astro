@@ -14,10 +14,17 @@ interface Props {
 
 const { project, index } = Astro.props;
 const displayNumber = (index + 1).toString().padStart(2, '0');
+
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const projectUrl = `/${lang === 'es' ? '' : lang + '/'}projects/${project.slug}`;
 ---
 
+
 <a
-  href={`/projects/${project.slug}`}
+  href={projectUrl}
   class="group relative block bg-surface-container-lowest tech-glow overflow-hidden transition-all duration-300 hover:-translate-y-1"
   id={`project-card-${project.slug}`}
 >
@@ -45,7 +52,7 @@ const displayNumber = (index + 1).toString().padStart(2, '0');
     <!-- Overlay on hover -->
     <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/40 transition-colors duration-300 flex items-center justify-center">
       <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-headline text-on-primary text-xs uppercase tracking-[0.3em]">
-        View Project
+        {t('projects.view')}
       </span>
     </div>
   </div>

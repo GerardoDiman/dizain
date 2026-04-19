@@ -1,0 +1,36 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import HeroSection from "@components/organisms/HeroSection.astro";
+import BioSection from "@components/organisms/BioSection.astro";
+import ProjectIndex from "@components/organisms/ProjectIndex.astro";
+import SkillsMatrix from "@components/organisms/SkillsMatrix.astro";
+import ContactSection from "@components/organisms/ContactSection.astro";
+import { getProfile } from "@services/profile";
+import { getPublishedProjects } from "@services/projects";
+import { getSkillsByCategory } from "@services/skills";
+
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'es' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params;
+
+// Fetch real data from InsForge filtered by lang
+const profile = await getProfile(lang);
+const projects = await getPublishedProjects(lang);
+const skillsByCategory = await getSkillsByCategory(lang);
+
+// SEO dynamic data
+const seoTitle = profile ? `${profile.full_name} | ${profile.title}` : "Blueprint Archive";
+---
+
+<BaseLayout title={seoTitle}>
+	<HeroSection profile={profile} />
+	<BioSection profile={profile} />
+	<SkillsMatrix skillsByCategory={skillsByCategory} />
+	<ProjectIndex projects={projects} />
+	<ContactSection />
+</BaseLayout>

@@ -6,18 +6,21 @@
 import SectionNumber from '@components/atoms/SectionNumber.astro';
 import SkillColumn from '@components/molecules/SkillColumn.astro';
 import type { Skill, SkillCategory } from '@schemas/skill';
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
 
 interface Props {
   skillsByCategory: Record<SkillCategory, Skill[]>;
 }
 
 const { skillsByCategory } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 
 const columns: { title: string; category: SkillCategory }[] = [
-  { title: 'Software', category: 'software' },
-  { title: 'Design', category: 'design' },
-  { title: 'Education', category: 'education' },
-  { title: 'Languages', category: 'languages' },
+  { title: t('skills.software'), category: 'software' },
+  { title: t('skills.design'), category: 'design' },
+  { title: t('skills.education'), category: 'education' },
+  { title: t('skills.languages'), category: 'languages' },
 ];
 ---
 
@@ -32,13 +35,13 @@ const columns: { title: string; category: SkillCategory }[] = [
       <SectionNumber number={2} class="absolute -top-4 -left-2 md:-left-4" />
       <div class="relative z-10">
         <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
-          Technical Profile
+          {t('skills.label')}
         </span>
         <h2
           id="specs-heading"
           class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
         >
-          Specifications
+          {t('skills.title')}
         </h2>
       </div>
     </div>

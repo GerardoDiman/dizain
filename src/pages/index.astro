@@ -22,9 +22,9 @@ let skillsByCategory: Awaited<ReturnType<typeof getSkillsByCategory>> = {
 
 try {
   [profile, projects, skillsByCategory] = await Promise.all([
-    getProfile(),
-    getPublishedProjects(),
-    getSkillsByCategory(),
+    getProfile('es'),
+    getPublishedProjects('es'),
+    getSkillsByCategory('es'),
   ]);
 } catch (error) {
   console.warn('[index] Data fetch error — rendering with defaults:', error);
@@ -33,8 +33,8 @@ try {
 
 <BaseLayout title="ARCHIVE.01 — Mechanical Design Portfolio">
   <HeroSection profile={profile} />
-  <ProjectIndex projects={projects} />
-  <SkillsMatrix skillsByCategory={skillsByCategory} />
   <BioSection profile={profile} />
+  <SkillsMatrix skillsByCategory={skillsByCategory} />
+  <ProjectIndex projects={projects} />
   <ContactSection />
 </BaseLayout>

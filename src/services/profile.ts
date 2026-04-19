@@ -4,11 +4,11 @@ import { ProfileSchema, type Profile } from '@schemas/profile';
 /**
  * Fetch the designer's profile (single row).
  */
-export async function getProfile(): Promise<Profile | null> {
+export async function getProfile(lang: string = 'es'): Promise<Profile | null> {
   const { data, error } = await insforge.database
     .from('profiles')
     .select('*')
-    .limit(1)
+    .eq('lang', lang)
     .single();
 
   if (error) {

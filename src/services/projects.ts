@@ -6,10 +6,11 @@ import { z } from 'zod';
  * Fetch all published projects with their specs and images.
  * Data is validated with Zod before returning.
  */
-export async function getPublishedProjects(): Promise<Project[]> {
+export async function getPublishedProjects(lang: string = 'es'): Promise<Project[]> {
   const { data, error } = await insforge.database
     .from('projects')
     .select('*, project_specs(*), project_images(*)')
+    .eq('lang', lang)
     .eq('is_published', true)
     .order('sort_order', { ascending: true });
 
@@ -31,11 +32,12 @@ export async function getPublishedProjects(): Promise<Project[]> {
 /**
  * Fetch a single project by slug.
  */
-export async function getProjectBySlug(slug: string): Promise<Project> {
+export async function getProjectBySlug(slug: string, lang: string = 'es'): Promise<Project> {
   const { data, error } = await insforge.database
     .from('projects')
     .select('*, project_specs(*), project_images(*)')
     .eq('slug', slug)
+    .eq('lang', lang)
     .single();
 
   if (error) {

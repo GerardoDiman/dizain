@@ -3,15 +3,20 @@ import '../styles/global.css';
 import Navbar from '@components/organisms/Navbar.astro';
 import Footer from '@components/organisms/Footer.astro';
 
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
+
 interface Props {
   title: string;
   description?: string;
   ogImage?: string;
 }
 
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
 const {
   title,
-  description = 'Professional Mechanical CAD Design Portfolio — Precision-engineered solutions in CATIA V5, Siemens NX, and SOLIDWORKS.',
+  description = t('hero.description'),
   ogImage = '/og/default.png',
 } = Astro.props;
 
@@ -19,7 +24,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang={lang} class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

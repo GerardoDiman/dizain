@@ -8,9 +8,13 @@ import type { Profile } from '@schemas/profile';
 interface Props {
   profile: Profile | null;
 }
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
 
 const { profile } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 const versionTag = profile?.version_tag ?? 'v.2024.01';
+
 const title = profile?.title ?? 'Mechanical Design Engineer';
 ---
 
@@ -33,16 +37,22 @@ const title = profile?.title ?? 'Mechanical Design Engineer';
       <span class="inline-block font-label text-[0.6875rem] text-on-primary/60 uppercase tracking-[0.4em] border border-on-primary/20 px-4 py-1.5">
         {title}
       </span>
+      <a 
+        href="#projects" 
+        class="inline-block bg-primary text-on-primary px-8 py-4 font-heading uppercase tracking-widest text-sm hover:bg-primary-container transition-all"
+      >
+        {t('hero.cta')}
+      </a>
     </div>
 
     <!-- Main Heading -->
     <h1 class="text-[clamp(3.5rem,12vw,10rem)] font-headline font-bold text-on-primary leading-[0.85] tracking-tighter uppercase max-w-5xl">
-      Precision<br />Archive
+      {t('hero.title_1')}<br />{t('hero.title_2')}
     </h1>
 
     <!-- Subline -->
     <p class="mt-6 md:mt-8 text-on-primary/60 font-body text-base md:text-lg max-w-xl leading-relaxed">
-      Engineering solutions with meticulous attention to detail. CAD-driven design portfolio.
+      {t('hero.description')}
     </p>
 
     <!-- Meta bar -->
@@ -51,17 +61,18 @@ const title = profile?.title ?? 'Mechanical Design Engineer';
         {versionTag}
       </span>
       <span class="font-label text-[0.6875rem] text-on-primary/40 uppercase tracking-[0.2em] border border-on-primary/15 px-3 py-1">
-        Precision Archive
+        {t('hero.version_tag')}
       </span>
       <span class="hidden md:inline-block font-label text-[0.6875rem] text-on-primary/40 uppercase tracking-[0.2em] border border-on-primary/15 px-3 py-1">
-        Blueprint System
+        {t('hero.system_tag')}
       </span>
     </div>
 
     <!-- Scroll indicator -->
     <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" aria-hidden="true">
-      <span class="font-label text-[0.5rem] text-on-primary/30 uppercase tracking-[0.3em]">Scroll</span>
+      <span class="font-label text-[0.5rem] text-on-primary/30 uppercase tracking-[0.3em]">{t('hero.scroll')}</span>
       <div class="w-px h-8 bg-on-primary/20 animate-pulse"></div>
     </div>
+
   </div>
 </section>

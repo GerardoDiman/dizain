@@ -5,10 +5,11 @@ import { z } from 'zod';
 /**
  * Fetch all skills, sorted by category and sort_order.
  */
-export async function getAllSkills(): Promise<Skill[]> {
+export async function getAllSkills(lang: string = 'es'): Promise<Skill[]> {
   const { data, error } = await insforge.database
     .from('skills')
     .select('*')
+    .eq('lang', lang)
     .order('sort_order', { ascending: true });
 
   if (error) {
@@ -29,8 +30,8 @@ export async function getAllSkills(): Promise<Skill[]> {
 /**
  * Group skills by category for rendering the Skills Matrix.
  */
-export async function getSkillsByCategory(): Promise<Record<SkillCategory, Skill[]>> {
-  const skills = await getAllSkills();
+export async function getSkillsByCategory(lang: string = 'es'): Promise<Record<SkillCategory, Skill[]>> {
+  const skills = await getAllSkills(lang);
 
   const grouped: Record<SkillCategory, Skill[]> = {
     software: [],

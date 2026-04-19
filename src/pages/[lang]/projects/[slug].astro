@@ -1,0 +1,115 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SectionNumber from "@components/atoms/SectionNumber.astro";
+import SpecBlock from "@components/molecules/SpecBlock.astro";
+import GhostDivider from "@components/atoms/GhostDivider.astro";
+import { getPublishedProjects, getProjectBySlug } from "@services/projects";
+
+
+export async function getStaticPaths() {
+  const languages = ['es', 'en'];
+  const paths = [];
+
+  for (const lang of languages) {
+    const projects = await getPublishedProjects(lang);
+    paths.push(...projects.map((project) => ({
+      params: { lang, slug: project.slug },
+      props: { lang },
+    })));
+  }
+
+  return paths;
+}
+
+const { slug, lang } = Astro.params;
+const project = await getProjectBySlug(slug, lang);
+
+if (!project) return Astro.redirect("/404");
+
+const mainImage = project.project_images?.find(img => img.is_hero)?.image_url || project.project_images?.[0]?.image_url;
+---
+
+<BaseLayout title={`${project.title} | Technical Specs`}>
+  <article class="pt-32 pb-24">
+    <!-- Header -->
+    <header class="container mx-auto px-6 mb-16">
+      <div class="flex flex-col md:flex-row justify-between items-end gap-8">
+        <div class="max-w-2xl">
+          <SectionNumber number="01" />
+          <h1 class="text-display-lg font-heading text-primary uppercase leading-none mb-4">
+            {project.title}
+          </h1>
+          <p class="text-title-md text-tertiary font-mono tracking-widest uppercase">
+            {project.subtitle}
+          </p>
+        </div>
+        <div class="hidden md:block text-right">
+          <p class="text-label-sm text-outline uppercase tracking-tighter">Project Hash</p>
+          <p class="font-mono text-xs text-primary opacity-50">#{project.id.slice(0, 8)}</p>
+        </div>
+      </div>
+    </header>
+
+    <GhostDivider />
+
+    <!-- Technical Specs & Hero -->
+    <section class="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 my-16">
+      <div class="lg:col-span-4 space-y-12">
+        <div class="bg-surface-container-high p-8">
+          <h2 class="text-label-md font-heading text-primary uppercase mb-8 tracking-widest">
+            {lang === 'es' ? 'Especificaciones' : 'Specifications'}
+          </h2>
+          <div class="space-y-6">
+            {project.project_specs?.map((spec: any) => (
+              <SpecBlock label={spec.label} value={spec.value} />
+            ))}
+            <SpecBlock label="Software" value={project.software} />
+          </div>
+        </div>
+
+        <div class="prose prose-stone dark:prose-invert">
+          <p class="text-body-md leading-relaxed text-on-surface-variant">
+            {project.description}
+          </p>
+        </div>
+      </div>
+
+      <div class="lg:col-span-8 relative group">
+        <div class="absolute -inset-1 bg-tertiary/10 blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+        <div class="relative aspect-video overflow-hidden bg-surface-container">
+          {mainImage ? (
+            <img 
+              src={mainImage} 
+              alt={project.title}
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div class="w-full h-full flex items-center justify-center text-outline-variant font-mono">
+              [ NO_IMAGE_LOADED ]
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery -->
+    {project.project_images && project.project_images.length > 1 && (
+      <section class="container mx-auto px-6 mt-24">
+        <h3 class="text-label-md font-heading text-primary uppercase mb-8 text-center tracking-widest">
+          {lang === 'es' ? 'Archivo Visual' : 'Visual Archive'}
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {project.project_images.filter(img => !img.is_hero).map((img) => (
+            <div class="aspect-square bg-surface-container overflow-hidden group">
+              <img 
+                src={img.image_url} 
+                alt="Technical render"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>

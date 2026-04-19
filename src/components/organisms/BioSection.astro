@@ -6,12 +6,15 @@
 import SectionNumber from '@components/atoms/SectionNumber.astro';
 import VerticalText from '@components/atoms/VerticalText.astro';
 import type { Profile } from '@schemas/profile';
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
 
 interface Props {
   profile: Profile | null;
 }
 
 const { profile } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <section
@@ -22,16 +25,16 @@ const { profile } = Astro.props;
   <div class="max-w-7xl mx-auto px-6 md:px-8">
     <!-- Section Header -->
     <div class="relative mb-16 md:mb-20">
-      <SectionNumber number={3} class="absolute -top-4 -left-2 md:-left-4" />
+      <SectionNumber number={1} class="absolute -top-4 -left-2 md:-left-4" />
       <div class="relative z-10">
         <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
-          About
+          {t('about.label')}
         </span>
         <h2
           id="about-heading"
           class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
         >
-          The Engineer
+          {t('about.title')}
         </h2>
       </div>
     </div>
@@ -42,7 +45,7 @@ const { profile } = Astro.props;
       <div class="lg:col-span-7 relative">
         <!-- Vertical annotation -->
         <div class="absolute -left-8 top-0 hidden xl:block">
-          <VerticalText text="Professional Profile" />
+          <VerticalText text={t('about.vertical')} />
         </div>
 
         <div class="space-y-6">
@@ -75,7 +78,7 @@ const { profile } = Astro.props;
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
-              Get in Touch
+              {t('about.contact')}
             </a>
             {profile.cv_url && (
               <a
@@ -84,7 +87,7 @@ const { profile } = Astro.props;
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-2 border border-outline/40 text-on-surface px-6 py-3 font-headline text-xs uppercase tracking-[0.2em] hover:bg-surface-container-high transition-colors"
               >
-                Download CV
+                {t('about.cv')}
               </a>
             )}
           </div>

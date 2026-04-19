@@ -6,32 +6,35 @@
 import SectionNumber from '@components/atoms/SectionNumber.astro';
 import ProjectCard from '@components/molecules/ProjectCard.astro';
 import type { Project } from '@schemas/project';
+import { getLangFromUrl, useTranslations } from '@i18n/utils';
 
 interface Props {
   projects: Project[];
 }
 
 const { projects } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <section
   class="relative bg-surface-container py-24 md:py-32"
-  id="portfolio"
+  id="projects"
   aria-labelledby="portfolio-heading"
 >
   <div class="max-w-7xl mx-auto px-6 md:px-8">
     <!-- Section Header -->
     <div class="relative mb-16 md:mb-20">
-      <SectionNumber number={1} class="absolute -top-4 -left-2 md:-left-4" />
+      <SectionNumber number={3} class="absolute -top-4 -left-2 md:-left-4" />
       <div class="relative z-10">
         <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
-          Case Studies
+          {t('projects.subtitle')}
         </span>
         <h2
           id="portfolio-heading"
           class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
         >
-          Portfolio
+          {t('projects.title')}
         </h2>
       </div>
     </div>

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionNumber from "@components/atoms/SectionNumber.astro";
-import SpecBlock from "@components/molecules/SpecBlock.astro";
+import SpecLabel from "@components/atoms/SpecLabel.astro";
 import GhostDivider from "@components/atoms/GhostDivider.astro";
 import { getPublishedProjects, getProjectBySlug } from "@services/projects";
 
@@ -61,9 +61,9 @@ const mainImage = project.project_images?.find(img => img.is_hero)?.image_url ||
           </h2>
           <div class="space-y-6">
             {project.project_specs?.map((spec: any) => (
-              <SpecBlock label={spec.label} value={spec.value} />
+              <SpecLabel label={spec.label} value={spec.value} />
             ))}
-            <SpecBlock label="Software" value={project.software} />
+            <SpecLabel label="Software" value={project.software} />
           </div>
         </div>
 

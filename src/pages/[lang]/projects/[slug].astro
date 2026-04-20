@@ -101,6 +101,31 @@ const mainImage = project?.project_images?.find((img: any) => img.is_hero)?.imag
             id="carousel-container"
             class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar h-full scroll-smooth"
           >
+            {/* 3D Model Viewer Slide (if available) */}
+            {project.model_url && (
+              <div class="flex-none w-full h-full snap-start relative bg-surface-container-highest">
+                <model-viewer
+                  src={project.model_url}
+                  alt={project.title}
+                  auto-rotate
+                  camera-controls
+                  shadow-intensity="1"
+                  environment-image="neutral"
+                  exposure="1"
+                  loading="lazy"
+                  class="w-full h-full"
+                  style="background-color: transparent;"
+                >
+                  <div slot="poster" class="flex items-center justify-center h-full text-label-sm text-outline uppercase tracking-widest">
+                    {lang === 'es' ? 'Cargando Modelo 3D...' : 'Loading 3D Model...'}
+                  </div>
+                </model-viewer>
+                <div class="absolute top-4 left-4 bg-primary text-on-primary px-3 py-1 text-[8px] uppercase tracking-[0.2em] font-bold">
+                  3D VIEW
+                </div>
+              </div>
+            )}
+
             {project.project_images?.map((img, i) => (
               <div class="flex-none w-full h-full snap-start relative">
                 {img.image_url.endsWith('.mp4') ? (
@@ -153,6 +178,8 @@ const mainImage = project?.project_images?.find((img: any) => img.is_hero)?.imag
       </div>
     </section>
 
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
     <script>
       const container = document.getElementById('carousel-container');
       const prevBtn = document.getElementById('prev-btn');
@@ -191,7 +218,7 @@ const mainImage = project?.project_images?.find((img: any) => img.is_hero)?.imag
         
         <div class="p-8 md:p-12 relative z-10">
           <h2 class="text-label-md font-heading text-primary uppercase mb-12 tracking-[0.4em] border-b border-primary/20 pb-4 inline-block">
-            {lang === 'es' ? 'Ficha Técnica' : 'Technical Data Sheet'}
+            {t('projects.specs')}
           </h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-10">

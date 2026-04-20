@@ -1,28 +1,17 @@
 ---
+export const prerender = false;
+
 /**
  * Project Detail — Dynamic page for each project case study.
- * Uses getStaticPaths() for SSG pre-rendering.
+ * Server-rendered on each request to reflect DB changes immediately.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import SectionNumber from '@components/atoms/SectionNumber.astro';
 import TechBadge from '@components/atoms/TechBadge.astro';
 import VerticalText from '@components/atoms/VerticalText.astro';
 import SpecBlock from '@components/molecules/SpecBlock.astro';
-import { getPublishedProjects, getProjectBySlug } from '@services/projects';
+import { getProjectBySlug } from '@services/projects';
 import type { Project } from '@schemas/project';
-
-export async function getStaticPaths() {
-  let projects: Project[] = [];
-  try {
-    projects = await getPublishedProjects();
-  } catch {
-    console.warn('[projects/slug] Failed to fetch projects for static paths');
-  }
-
-  return projects.map((project) => ({
-    params: { slug: project.slug },
-  }));
-}
 
 const { slug } = Astro.params;
 

@@ -1,33 +1,29 @@
 ---
+export const prerender = false;
+
 // Force refresh
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionNumber from "@components/atoms/SectionNumber.astro";
 import GhostDivider from "@components/atoms/GhostDivider.astro";
-import { getPublishedProjects, getProjectBySlug } from "@services/projects";
+import { getProjectBySlug } from "@services/projects";
 import { getProfile } from "@services/profile";
 import type { ProjectSpec } from "@schemas/project";
 
-export async function getStaticPaths() {
-  const languages = ['es', 'en'];
-  const paths = [];
-
-  for (const lang of languages) {
-    const projects = await getPublishedProjects(lang);
-    paths.push(...projects.map((project: any) => ({
-      params: { lang, slug: project.slug },
-      props: { lang },
-    })));
-  }
-
-  return paths;
-}
-
+const validLangs = ['es', 'en'];
 type Params = { lang: string; slug: string };
 const { slug, lang } = Astro.params as Params;
-const [project, profile] = await Promise.all([
-  getProjectBySlug(slug, lang),
-  getProfile(lang)
-]) as [any, any]; // Temporary cast to resolve destructuring ambiguity
+if (!lang || !validLangs.includes(lang)) return Astro.redirect('/404');
+
+let project: any;
+let profile: any;
+try {
+  [project, profile] = await Promise.all([
+    getProjectBySlug(slug, lang),
+    getProfile(lang)
+  ]);
+} catch {
+  return Astro.redirect('/404');
+}
 
 if (!project) return Astro.redirect("/404");
 

@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import BaseLayout from "@layouts/BaseLayout.astro";
 import HeroSection from "@components/organisms/HeroSection.astro";
 import BioSection from "@components/organisms/BioSection.astro";
@@ -9,14 +11,9 @@ import { getProfile } from "@services/profile";
 import { getPublishedProjects } from "@services/projects";
 import { getSkillsByCategory } from "@services/skills";
 
-export async function getStaticPaths() {
-  return [
-    { params: { lang: 'es' } },
-    { params: { lang: 'en' } },
-  ];
-}
-
+const validLangs = ['es', 'en'];
 const { lang } = Astro.params;
+if (!lang || !validLangs.includes(lang)) return Astro.redirect('/404');
 
 // Fetch real data from InsForge filtered by lang
 const profile = await getProfile(lang);

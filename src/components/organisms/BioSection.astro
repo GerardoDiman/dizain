@@ -40,15 +40,15 @@ const t = useTranslations(lang);
     </div>
 
     <!-- Asymmetric Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
       <!-- Bio Text (left) -->
-      <div class="lg:col-span-7 relative">
+      <div class="lg:col-span-8 relative">
         <!-- Vertical annotation -->
         <div class="absolute -left-8 top-0 hidden xl:block">
           <VerticalText text={t('about.vertical')} />
         </div>
 
-        <div class="space-y-6">
+        <div class="space-y-6 max-w-2xl">
           {profile?.bio && profile.bio.length > 0 ? (
             profile.bio.map((paragraph) => (
               <p class="font-body text-base md:text-lg leading-relaxed text-on-surface-variant">
@@ -110,8 +110,8 @@ const t = useTranslations(lang);
       </div>
 
       <!-- Profile Image (right) -->
-      <div class="lg:col-span-5 relative">
-        <div class="relative aspect-[3/4] bg-surface-container-high overflow-hidden">
+      <div class="lg:col-span-4 relative flex justify-end">
+        <div class="relative w-full max-w-[380px] aspect-[3/4] bg-surface-container-high overflow-hidden shadow-2xl">
           {profile?.profile_image_url ? (
             <img
               src={profile.profile_image_url}
@@ -127,11 +127,11 @@ const t = useTranslations(lang);
           )}
 
           <!-- Image caption overlay -->
-          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary/80 to-transparent p-6">
-            <p class="font-headline text-sm text-on-primary uppercase tracking-widest">
+          <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#2d3d28] via-[#2d3d28]/70 to-transparent flex flex-col justify-end p-5 pb-4">
+            <p class="font-headline text-sm text-white uppercase tracking-widest drop-shadow-sm">
               {profile?.full_name ?? 'Designer'}
             </p>
-            <p class="font-label text-[0.6875rem] text-on-primary/60 uppercase tracking-[0.1em] mt-1">
+            <p class="font-label text-[0.6875rem] text-white/80 uppercase tracking-[0.1em] mt-1 drop-shadow-sm">
               {profile?.title ?? 'Mechanical Designer'}
             </p>
           </div>

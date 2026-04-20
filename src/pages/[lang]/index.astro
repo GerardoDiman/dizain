@@ -27,7 +27,11 @@ const skillsByCategory = await getSkillsByCategory(lang);
 const seoTitle = profile ? `${profile.full_name} | ${profile.title}` : "Blueprint Archive";
 ---
 
-<BaseLayout title={seoTitle}>
+<BaseLayout 
+	title={seoTitle}
+	linkedinUrl={profile?.linkedin_url}
+	behanceUrl={profile?.behance_url}
+>
 	<HeroSection profile={profile} />
 	<BioSection profile={profile} />
 	<SkillsMatrix skillsByCategory={skillsByCategory} />

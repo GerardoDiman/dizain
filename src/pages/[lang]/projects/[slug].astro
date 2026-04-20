@@ -4,7 +4,7 @@ import SectionNumber from "@components/atoms/SectionNumber.astro";
 import SpecLabel from "@components/atoms/SpecLabel.astro";
 import GhostDivider from "@components/atoms/GhostDivider.astro";
 import { getPublishedProjects, getProjectBySlug } from "@services/projects";
-
+import { getProfile } from "@services/profile";
 
 export async function getStaticPaths() {
   const languages = ['es', 'en'];
@@ -22,14 +22,21 @@ export async function getStaticPaths() {
 }
 
 const { slug, lang } = Astro.params;
-const project = await getProjectBySlug(slug, lang);
+const [project, profile] = await Promise.all([
+  getProjectBySlug(slug, lang),
+  getProfile(lang)
+]);
 
 if (!project) return Astro.redirect("/404");
 
 const mainImage = project.project_images?.find(img => img.is_hero)?.image_url || project.project_images?.[0]?.image_url;
 ---
 
-<BaseLayout title={`${project.title} | Technical Specs`}>
+<BaseLayout 
+  title={`${project.title} | Technical Specs`}
+  linkedinUrl={profile?.linkedin_url}
+  behanceUrl={profile?.behance_url}
+>
   <article class="pt-32 pb-24">
     <!-- Header -->
     <header class="container mx-auto px-6 mb-16">

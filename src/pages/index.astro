@@ -31,7 +31,11 @@ try {
 }
 ---
 
-<BaseLayout title="ARCHIVE.01 — Mechanical Design Portfolio">
+<BaseLayout 
+  title="DIZAIN — Mechanical Design Portfolio"
+  linkedinUrl={profile?.linkedin_url}
+  behanceUrl={profile?.behance_url}
+>
   <HeroSection profile={profile} />
   <BioSection profile={profile} />
   <SkillsMatrix skillsByCategory={skillsByCategory} />

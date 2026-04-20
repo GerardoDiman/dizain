@@ -19,7 +19,7 @@ const title = profile?.title ?? 'Mechanical Design Engineer';
 ---
 
 <section
-  class="relative min-h-screen bg-primary flex items-end overflow-hidden"
+  class="relative min-h-screen bg-primary flex items-center lg:items-end overflow-hidden"
   id="hero"
   aria-label="Hero section"
 >
@@ -31,27 +31,27 @@ const title = profile?.title ?? 'Mechanical Design Engineer';
   <div class="absolute right-[10%] top-0 bottom-0 w-px bg-on-primary/10 hidden lg:block" aria-hidden="true"></div>
 
   <!-- Content -->
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-8 pb-16 md:pb-24 pt-32">
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-8 pt-32 pb-24 md:pb-24">
     <!-- Top label -->
-    <div class="mb-6 md:mb-8">
+    <div class="mb-6 md:mb-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
       <span class="inline-block font-label text-[0.6875rem] text-on-primary/60 uppercase tracking-[0.4em] border border-on-primary/20 px-4 py-1.5">
         {title}
       </span>
       <a 
         href="#projects" 
-        class="inline-block bg-primary text-on-primary px-8 py-4 font-heading uppercase tracking-widest text-sm hover:bg-primary-container transition-all"
+        class="inline-block bg-primary border border-on-primary/40 text-on-primary px-8 py-3.5 font-headline uppercase tracking-[0.2em] text-[0.7rem] hover:bg-on-primary hover:text-primary transition-all"
       >
         {t('hero.cta')}
       </a>
     </div>
 
     <!-- Main Heading -->
-    <h1 class="text-[clamp(3.5rem,12vw,10rem)] font-headline font-bold text-on-primary leading-[0.85] tracking-tighter uppercase max-w-5xl">
+    <h1 class="text-[clamp(2.75rem,14vw,10rem)] font-headline font-bold text-on-primary leading-[0.85] tracking-tighter uppercase max-w-5xl">
       {t('hero.title_1')}<br />{t('hero.title_2')}
     </h1>
 
     <!-- Subline -->
-    <p class="mt-6 md:mt-8 text-on-primary/60 font-body text-base md:text-lg max-w-xl leading-relaxed">
+    <p class="mt-8 md:mt-10 text-on-primary/80 font-body text-base md:text-lg max-w-xl leading-relaxed">
       {t('hero.description')}
     </p>
 

@@ -10,7 +10,6 @@ interface Props {
   description?: string;
   ogImage?: string;
   linkedinUrl?: string;
-  behanceUrl?: string;
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -21,7 +20,6 @@ const {
   description = t('hero.description'),
   ogImage = '/og/default.png',
   linkedinUrl,
-  behanceUrl,
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.vercel.app');
@@ -91,6 +89,6 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
       <slot />
     </main>
 
-    <Footer linkedinUrl={linkedinUrl} behanceUrl={behanceUrl} />
+    <Footer linkedinUrl={linkedinUrl} />
   </body>
 </html>

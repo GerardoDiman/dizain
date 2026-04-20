@@ -5,12 +5,10 @@
  */
 interface Props {
   linkedinUrl?: string;
-  behanceUrl?: string;
 }
 
 const {
   linkedinUrl = '#',
-  behanceUrl = '#',
 } = Astro.props;
 import { getLangFromUrl, useTranslations } from '@i18n/utils';
 
@@ -40,14 +38,6 @@ const currentYear = new Date().getFullYear();
       >
         LinkedIn
       </a>
-      <a
-        href={behanceUrl}
-        class="hover:text-tertiary transition-colors"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Behance
-      </a>
       <a href="/privacy" class="hover:text-tertiary transition-colors">
         {t('footer.privacy')}
       </a>
@@ -57,7 +47,7 @@ const currentYear = new Date().getFullYear();
     <!-- Copyright -->
       <div class="flex flex-col md:flex-row justify-between items-center gap-8">
         <div>
-          <p class="text-label-sm text-outline uppercase tracking-widest">
+          <p class="text-[8px] text-outline/50 uppercase tracking-[0.2em]">
             &copy; {new Date().getFullYear()} Gerardo Díaz. {t('footer.rights')}
           </p>
         </div>

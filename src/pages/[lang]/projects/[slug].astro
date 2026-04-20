@@ -1,10 +1,11 @@
 ---
+// Force refresh
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionNumber from "@components/atoms/SectionNumber.astro";
-import SpecLabel from "@components/atoms/SpecLabel.astro";
 import GhostDivider from "@components/atoms/GhostDivider.astro";
 import { getPublishedProjects, getProjectBySlug } from "@services/projects";
 import { getProfile } from "@services/profile";
+import type { ProjectSpec } from "@schemas/project";
 
 export async function getStaticPaths() {
   const languages = ['es', 'en'];
@@ -12,7 +13,7 @@ export async function getStaticPaths() {
 
   for (const lang of languages) {
     const projects = await getPublishedProjects(lang);
-    paths.push(...projects.map((project) => ({
+    paths.push(...projects.map((project: any) => ({
       params: { lang, slug: project.slug },
       props: { lang },
     })));
@@ -21,15 +22,16 @@ export async function getStaticPaths() {
   return paths;
 }
 
-const { slug, lang } = Astro.params;
+type Params = { lang: string; slug: string };
+const { slug, lang } = Astro.params as Params;
 const [project, profile] = await Promise.all([
   getProjectBySlug(slug, lang),
   getProfile(lang)
-]);
+]) as [any, any]; // Temporary cast to resolve destructuring ambiguity
 
 if (!project) return Astro.redirect("/404");
 
-const mainImage = project.project_images?.find(img => img.is_hero)?.image_url || project.project_images?.[0]?.image_url;
+const mainImage = project?.project_images?.find(img => img.is_hero)?.image_url || project?.project_images?.[0]?.image_url;
 ---
 
 <BaseLayout 
@@ -111,9 +113,9 @@ const mainImage = project.project_images?.find(img => img.is_hero)?.image_url ||
                     class="w-full h-full object-cover"
                   />
                 )}
-                <!-- Slide Counter -->
+                {/* Slide Counter */}
                 <div class="absolute top-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono">
-                  {i + 1} / {project.project_images.length}
+                  {i + 1} / {project.project_images?.length || 0}
                 </div>
               </div>
             ))}
@@ -178,7 +180,7 @@ const mainImage = project.project_images?.find(img => img.is_hero)?.image_url ||
           </h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-10">
-            {project.project_specs?.map((spec: any) => (
+            {project.project_specs?.map((spec: ProjectSpec) => (
               <div class="space-y-2">
                 <p class="text-[10px] text-tertiary uppercase tracking-widest font-mono">{spec.label}</p>
                 <p class="text-on-surface font-body font-medium">{spec.value}</p>

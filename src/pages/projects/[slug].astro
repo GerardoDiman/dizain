@@ -18,7 +18,8 @@ const { slug } = Astro.params;
 let project: Project;
 try {
   project = await getProjectBySlug(slug as string);
-} catch {
+} catch (error: any) {
+  console.error(`[ROOT PROJECT PAGE ERROR] slug: ${slug}:`, error);
   return Astro.redirect('/404');
 }
 

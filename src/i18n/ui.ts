@@ -28,6 +28,8 @@ export const ui = {
     'projects.title': 'Índice de Proyectos',
     'projects.view': 'Ver Proyecto',
     'projects.empty': 'Proyectos cargando — Vuelve pronto.',
+    'projects.hash': 'Hash del Proyecto',
+    'projects.workbench': 'Workbench Principal',
 
     'projects.specs': 'Especificaciones Técnicas',
     'skills.label': 'Perfil Técnico',
@@ -80,6 +82,8 @@ export const ui = {
     'projects.title': 'Project Index',
     'projects.view': 'View Project',
     'projects.empty': 'Projects loading — Check back soon.',
+    'projects.hash': 'Project Hash',
+    'projects.workbench': 'Main Workbench',
 
     'projects.specs': 'Technical Specifications',
     'skills.label': 'Technical Profile',

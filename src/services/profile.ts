@@ -11,9 +11,20 @@ export async function getProfile(lang: string = 'es'): Promise<Profile | null> {
     .eq('lang', lang)
     .single();
 
-  if (error) {
-    console.error('[services/profile] Fetch error:', error.message);
-    return null;
+  if (error || !data) {
+    console.warn(`[services/profile] Profile for "${lang}" not found, trying fallback...`);
+    const { data: fallbackData, error: fallbackError } = await insforge.database
+      .from('profiles')
+      .select('*')
+      .limit(1)
+      .maybeSingle();
+
+    if (fallbackError || !fallbackData) {
+      console.error('[services/profile] No profile found in any language.');
+      return null;
+    }
+    const fallbackResult = ProfileSchema.safeParse(fallbackData);
+    return fallbackResult.success ? fallbackResult.data : null;
   }
 
   const result = ProfileSchema.safeParse(data);

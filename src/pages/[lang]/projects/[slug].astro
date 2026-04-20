@@ -9,10 +9,16 @@ import { getProjectBySlug } from "@services/projects";
 import { getProfile } from "@services/profile";
 import type { ProjectSpec } from "@schemas/project";
 
+import { getLangFromUrl, useTranslations } from "@i18n/utils";
+
 const validLangs = ['es', 'en'];
 type Params = { lang: string; slug: string };
-const { slug, lang } = Astro.params as Params;
+const { slug, lang: langParam } = Astro.params as Params;
+const lang = langParam as 'es' | 'en';
+
 if (!lang || !validLangs.includes(lang)) return Astro.redirect('/404');
+
+const t = useTranslations(lang);
 
 let project: any;
 let profile: any;
@@ -21,13 +27,14 @@ try {
     getProjectBySlug(slug, lang),
     getProfile(lang)
   ]);
-} catch {
+} catch (error: any) {
+  console.error(`[PROJECT PAGE ERROR] lang: ${lang}, slug: ${slug}:`, error);
   return Astro.redirect('/404');
 }
 
 if (!project) return Astro.redirect("/404");
 
-const mainImage = project?.project_images?.find(img => img.is_hero)?.image_url || project?.project_images?.[0]?.image_url;
+const mainImage = project?.project_images?.find((img: any) => img.is_hero)?.image_url || project?.project_images?.[0]?.image_url;
 ---
 
 <BaseLayout 
@@ -49,17 +56,19 @@ const mainImage = project?.project_images?.find(img => img.is_hero)?.image_url |
     <!-- Header -->
     <header class="container mx-auto px-6 mb-16 md:mb-24">
       <div class="flex flex-col md:flex-row justify-between items-end gap-8">
-        <div class="max-w-2xl">
-          <SectionNumber number="01" />
-          <h1 class="text-display-lg font-heading text-primary uppercase leading-none mb-4">
+        <div class="max-w-5xl">
+          <span class="font-headline text-4xl font-bold text-primary/20 block mb-3 tracking-tighter">
+            01
+          </span>
+          <h1 class="text-5xl md:text-6xl font-heading text-primary uppercase leading-[0.85] mb-8 font-bold tracking-tighter">
             {project.title}
           </h1>
-          <p class="text-title-md text-tertiary font-mono tracking-widest uppercase">
+          <p class="text-title-md text-tertiary font-mono tracking-[0.3em] uppercase border-l-2 border-primary/20 pl-6">
             {project.subtitle}
           </p>
         </div>
         <div class="hidden md:block text-right">
-          <p class="text-label-sm text-outline uppercase tracking-tighter">Project Hash</p>
+          <p class="text-label-sm text-outline uppercase tracking-tighter">{t('projects.hash')}</p>
           <p class="font-mono text-xs text-primary opacity-50">#{project.id.slice(0, 8)}</p>
         </div>
       </div>
@@ -79,7 +88,7 @@ const mainImage = project?.project_images?.find(img => img.is_hero)?.image_url |
         </div>
         
         <div class="pt-8 border-t border-outline/10">
-          <p class="text-label-sm text-tertiary uppercase tracking-widest mb-2">Main Workbench</p>
+          <p class="text-label-sm text-tertiary uppercase tracking-widest mb-2">{t('projects.workbench')}</p>
           <p class="font-headline text-lg text-primary uppercase">{project.workbench}</p>
         </div>
       </div>

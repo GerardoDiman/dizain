@@ -28,9 +28,19 @@ const seoTitle = profile ? `${profile.full_name} | ${profile.title}` : "Blueprin
 	title={seoTitle}
 	linkedinUrl={profile?.linkedin_url}
 >
-	<HeroSection profile={profile} />
-	<BioSection profile={profile} />
-	<SkillsMatrix skillsByCategory={skillsByCategory} />
-	<ProjectIndex projects={projects} />
-	<ContactSection />
+	<div class="entry-animate entry-delay-1">
+		<HeroSection profile={profile} />
+	</div>
+	<div class="entry-animate entry-delay-2">
+		<BioSection profile={profile} />
+	</div>
+	<div class="entry-animate entry-delay-3">
+		<SkillsMatrix skillsByCategory={skillsByCategory} />
+	</div>
+	<div class="entry-animate entry-delay-4">
+		<ProjectIndex projects={projects} />
+	</div>
+	<div class="entry-animate entry-delay-5">
+		<ContactSection />
+	</div>
 </BaseLayout>

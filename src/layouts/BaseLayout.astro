@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Navbar from '@components/organisms/Navbar.astro';
 import Footer from '@components/organisms/Footer.astro';
+import TechnicalPreloader from '@components/atoms/TechnicalPreloader';
 
 import { getLangFromUrl, useTranslations } from '@i18n/utils';
 
@@ -74,21 +75,29 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
     </script>
   </head>
 
-  <body class="bg-surface text-on-surface font-body overflow-x-hidden antialiased">
-    <!-- Skip to content (Accessibility) -->
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-on-primary focus:px-4 focus:py-2 focus:font-headline focus:uppercase focus:text-xs focus:tracking-widest"
-    >
-      Skip to content
-    </a>
+  <body class="bg-surface text-on-surface font-body selection:bg-primary/10 selection:text-primary">
+    <!-- Technical Assembly Preloader -->
+    <TechnicalPreloader client:load />
 
-    <Navbar />
-
-    <main id="main-content">
+    <Navbar linkedinUrl={linkedinUrl} />
+    <main class="min-h-screen">
       <slot />
     </main>
-
     <Footer linkedinUrl={linkedinUrl} />
+
+    <style is:global>
+      /* Hide scrollbar during preloading */
+      body.loading {
+        overflow: hidden !important;
+      }
+    </style>
+
+    <script>
+      // Handle loading state
+      document.body.classList.add('loading');
+      window.addEventListener('site-loaded', () => {
+        document.body.classList.remove('loading');
+      });
+    </script>
   </body>
 </html>

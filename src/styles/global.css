@@ -190,6 +190,28 @@ html {
   }
 }
 
+/* --- Entry Animations (Page Assembly) --- */
+.entry-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  filter: blur(10px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body:not(.loading) .entry-animate {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.entry-delay-1 { transition-delay: 0.1s; }
+.entry-delay-2 { transition-delay: 0.3s; }
+.entry-delay-3 { transition-delay: 0.5s; }
+.entry-delay-4 { transition-delay: 0.7s; }
+.entry-delay-5 { transition-delay: 0.9s; }
+
 /* ── Hide Scrollbar Utility ── */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -198,4 +220,3 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-

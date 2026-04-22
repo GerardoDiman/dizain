@@ -27,6 +27,7 @@ const seoTitle = profile ? `${profile.full_name} | ${profile.title}` : "Blueprin
 <BaseLayout 
 	title={seoTitle}
 	linkedinUrl={profile?.linkedin_url}
+	showPreloader={true}
 >
 	<div class="entry-animate entry-delay-1">
 		<HeroSection profile={profile} />

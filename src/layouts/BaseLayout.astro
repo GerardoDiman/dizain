@@ -11,6 +11,7 @@ interface Props {
   description?: string;
   ogImage?: string;
   linkedinUrl?: string;
+  showPreloader?: boolean;
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -21,6 +22,7 @@ const {
   description = t('hero.description'),
   ogImage = '/og/default.png',
   linkedinUrl,
+  showPreloader = false,
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.vercel.app');
@@ -62,14 +64,20 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
       rel="stylesheet"
     />
 
-    <!-- Dark Mode: Prevent FOUC -->
+    <!-- Dark Mode & Preload Check: Prevent FOUC and repetitive preloading -->
     <script is:inline>
       (function () {
+        // Theme
         const stored = localStorage.getItem('theme');
         if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
         } else {
           document.documentElement.classList.remove('dark');
+        }
+
+        // Preload check
+        if (sessionStorage.getItem('dizain-preloaded')) {
+          document.documentElement.classList.add('preloaded');
         }
       })();
     </script>
@@ -77,7 +85,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
 
   <body class="bg-surface text-on-surface font-body selection:bg-primary/10 selection:text-primary">
     <!-- Technical Assembly Preloader -->
-    <TechnicalPreloader client:load />
+    {showPreloader && <TechnicalPreloader client:only="react" />}
 
     <Navbar linkedinUrl={linkedinUrl} />
     <main class="min-h-screen">
@@ -90,14 +98,29 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
       body.loading {
         overflow: hidden !important;
       }
+      /* Hide preloader if already shown in session */
+      .preloaded [data-preloader] {
+        display: none !important;
+      }
     </style>
 
-    <script>
-      // Handle loading state
-      document.body.classList.add('loading');
-      window.addEventListener('site-loaded', () => {
-        document.body.classList.remove('loading');
-      });
+    <script define:vars={{ showPreloader }}>
+      const isPreloaded = sessionStorage.getItem('dizain-preloaded');
+      
+      if (showPreloader && !isPreloaded) {
+        document.body.classList.add('loading');
+        
+        // Timeout fallback to ensure site is never stuck
+        const timeout = setTimeout(() => {
+          document.body.classList.remove('loading');
+        }, 8000);
+
+        window.addEventListener('site-loaded', () => {
+          clearTimeout(timeout);
+          document.body.classList.remove('loading');
+          sessionStorage.setItem('dizain-preloaded', 'true');
+        });
+      }
     </script>
   </body>
 </html>

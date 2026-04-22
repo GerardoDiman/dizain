@@ -3,29 +3,29 @@ import * as THREE from 'three';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const TechnicalPreloader: React.FC = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !sessionStorage.getItem('dizain-preloaded');
+    }
+    return true;
+  });
   const [progress, setProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
   const loadingRef = useRef(true);
 
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const palette = {
-    light: { surface: '#f9f9f7', line: '#46583c' },
-    dark: { surface: '#121212', line: '#5e7153' }
-  };
-
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    setTheme(isDark ? 'dark' : 'light');
-  }, []);
-
-  const activeColors = palette[theme];
+  const activeColors = { surface: '#f9f9f7', line: '#46583c' };
 
   useEffect(() => { progressRef.current = progress; }, [progress]);
   useEffect(() => { loadingRef.current = loading; }, [loading]);
 
   useEffect(() => {
+    // If not loading (already preloaded), just fire the event and exit
+    if (!loading) {
+      window.dispatchEvent(new Event('site-loaded'));
+      return;
+    }
+
     const duration = 4000;
     const startTime = Date.now();
     const interval = setInterval(() => {
@@ -197,7 +197,7 @@ const TechnicalPreloader: React.FC = () => {
       solidMat.dispose();
       if (containerRef.current && renderer.domElement) containerRef.current.removeChild(renderer.domElement);
     };
-  }, [theme]);
+  }, []);
 
   return (
     <AnimatePresence mode="wait">
@@ -209,6 +209,7 @@ const TechnicalPreloader: React.FC = () => {
           transition={{ duration: 1 }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
           style={{ backgroundColor: activeColors.surface }}
+          data-preloader
         >
           <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: `linear-gradient(${activeColors.line} 1px, transparent 1px), linear-gradient(90deg, ${activeColors.line} 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
           <div ref={containerRef} className="absolute inset-0 z-0" />

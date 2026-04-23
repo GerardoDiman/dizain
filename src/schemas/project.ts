@@ -29,6 +29,7 @@ export const ProjectSchema = z.object({
   hero_image_url: z.string().url().nullable(),
   sort_order: z.number().int(),
   is_published: z.boolean(),
+  model_url: z.string().url().nullable().optional(),
   created_at: z.string(),
   updated_at: z.string(),
   project_specs: z.array(ProjectSpecSchema).optional(),

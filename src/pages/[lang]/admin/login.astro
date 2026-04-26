@@ -1,0 +1,46 @@
+---
+import "@styles/global.css";
+import LoginForm from "@components/admin/LoginForm";
+
+// In a real app, check if already logged in and redirect
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Acceso Admin | Dizain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-surface text-on-surface font-body overflow-hidden">
+    <main class="min-h-screen flex items-center justify-center relative p-6">
+      <!-- Blueprint Grid Background -->
+      <div class="absolute inset-0 grid-blueprint opacity-20 pointer-events-none"></div>
+
+      <!-- Background Ambient Glow -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <!-- Login Component (React Island) -->
+      <LoginForm client:load />
+
+      <!-- Footer Info -->
+      <div class="absolute bottom-8 left-12">
+        <p class="text-[10px] font-label text-secondary uppercase tracking-[0.2em] mb-1">Terminal ID: Admin-01</p>
+        <p class="text-[10px] font-label text-secondary uppercase tracking-[0.2em]">Location: e-45 / Mechanical Hub</p>
+      </div>
+
+      <div class="absolute bottom-8 right-12 text-right">
+        <p class="text-[10px] font-label text-secondary uppercase tracking-[0.2em] mb-1">Secure Connection</p>
+        <p class="text-[10px] font-label text-primary font-bold uppercase tracking-[0.2em]">Encrypted Session</p>
+      </div>
+    </main>
+  </body>
+</html>

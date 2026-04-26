@@ -1,4 +1,4 @@
-import insforge from '@lib/insforge';
+import { supabase } from '@lib/supabase';
 import { SkillSchema, type Skill, type SkillCategory } from '@schemas/skill';
 import { z } from 'zod';
 
@@ -6,10 +6,9 @@ import { z } from 'zod';
  * Fetch all skills, sorted by category and sort_order.
  */
 export async function getAllSkills(lang: string = 'es'): Promise<Skill[]> {
-  const { data, error } = await insforge.database
+  const { data, error } = await supabase
     .from('skills')
     .select('*')
-    .eq('lang', lang)
     .order('sort_order', { ascending: true });
 
   if (error) {
@@ -17,11 +16,23 @@ export async function getAllSkills(lang: string = 'es'): Promise<Skill[]> {
     return [];
   }
 
-  const result = z.array(SkillSchema).safeParse(data);
+  // Helper to extract translation
+  const translate = (field: any, l: string) => {
+    if (!field) return '';
+    if (typeof field === 'string') return field;
+    return field[l] || field['es'] || Object.values(field)[0] || '';
+  };
+
+  const translatedData = data.map((s: any) => ({
+    ...s,
+    label: translate(s.label, lang)
+  }));
+
+  const result = z.array(SkillSchema).safeParse(translatedData);
 
   if (!result.success) {
-    console.error('[services/skills] Validation error:', result.error.format());
-    return [];
+    console.error('[services/skills] Validation error:', JSON.stringify(result.error.format(), null, 2));
+    return translatedData as Skill[];
   }
 
   return result.data;
@@ -41,8 +52,12 @@ export async function getSkillsByCategory(lang: string = 'es'): Promise<Record<S
   };
 
   for (const skill of skills) {
-    grouped[skill.category].push(skill);
+    const cat = skill.category as SkillCategory;
+    if (grouped[cat]) {
+      grouped[cat].push(skill);
+    }
   }
 
   return grouped;
 }
+

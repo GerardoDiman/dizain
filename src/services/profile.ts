@@ -1,38 +1,41 @@
-import insforge from '@lib/insforge';
+import { supabase } from '@lib/supabase';
 import { ProfileSchema, type Profile } from '@schemas/profile';
 
 /**
  * Fetch the designer's profile (single row).
  */
 export async function getProfile(lang: string = 'es'): Promise<Profile | null> {
-  const { data, error } = await insforge.database
+  const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('lang', lang)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
   if (error || !data) {
-    console.warn(`[services/profile] Profile for "${lang}" not found, trying fallback...`);
-    const { data: fallbackData, error: fallbackError } = await insforge.database
-      .from('profiles')
-      .select('*')
-      .limit(1)
-      .maybeSingle();
-
-    if (fallbackError || !fallbackData) {
-      console.error('[services/profile] No profile found in any language.');
-      return null;
-    }
-    const fallbackResult = ProfileSchema.safeParse(fallbackData);
-    return fallbackResult.success ? fallbackResult.data : null;
+    console.error('[services/profile] No profile found.');
+    return null;
   }
 
-  const result = ProfileSchema.safeParse(data);
+  // Helper to extract translation
+  const translate = (field: any, l: string, fallback: any = '') => {
+    if (!field) return fallback;
+    if (typeof field === 'string' || Array.isArray(field)) return field;
+    return field[l] || field['es'] || Object.values(field)[0] || fallback;
+  };
+
+  const translatedProfile = {
+    ...data,
+    title: translate(data.title, lang),
+    bio: translate(data.bio, lang, [])
+  };
+
+  const result = ProfileSchema.safeParse(translatedProfile);
 
   if (!result.success) {
-    console.error('[services/profile] Validation error:', result.error.format());
-    return null;
+    console.error('[services/profile] Validation error:', JSON.stringify(result.error.format(), null, 2));
+    return translatedProfile as Profile;
   }
 
   return result.data;
 }
+

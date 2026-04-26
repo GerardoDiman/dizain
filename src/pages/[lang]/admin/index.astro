@@ -1,0 +1,5 @@
+---
+// Redirect /admin to /admin/dashboard
+const { lang } = Astro.params;
+return Astro.redirect(`/${lang}/admin/dashboard`);
+---

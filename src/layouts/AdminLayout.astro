@@ -1,0 +1,125 @@
+---
+import "@styles/global.css";
+import { LayoutDashboard, FolderKanban, Cpu, Settings, LogOut } from "lucide-react";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const lang = Astro.params.lang || 'es';
+
+const navItems = [
+  { name: "Dashboard", href: `/${lang}/admin/dashboard`, icon: LayoutDashboard },
+  { name: "Proyectos", href: `/${lang}/admin/projects`, icon: FolderKanban },
+  { name: "Habilidades", href: `/${lang}/admin/skills`, icon: Cpu },
+  { name: "Ajustes", href: `/${lang}/admin/settings`, icon: Settings },
+];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Admin Dizain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-surface text-on-surface font-body overflow-hidden">
+    <div class="flex h-screen w-full">
+      <!-- Technical Sidebar -->
+      <aside class="w-64 bg-surface-container-high border-r border-outline-variant flex flex-col z-50">
+        <div class="p-8">
+          <div class="flex items-center gap-3 mb-12">
+            <div class="w-8 h-8 bg-primary flex items-center justify-center">
+              <span class="text-on-primary font-headline font-bold text-xs">DZ</span>
+            </div>
+            <div>
+              <h1 class="font-headline font-bold text-sm tracking-tight leading-none uppercase">Dizain</h1>
+              <p class="font-label text-[10px] text-primary font-medium tracking-[0.2em] uppercase mt-1">Admin Panel</p>
+            </div>
+          </div>
+
+          <nav class="space-y-2">
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-surface-container-highest group"
+              >
+                <item.icon className="w-4 h-4 text-secondary group-hover:text-primary" />
+                <span class="font-label uppercase tracking-wider text-[11px]">{item.name}</span>
+              </a>
+            ))}
+          </nav>
+        </div>
+
+        <div class="mt-auto p-8">
+          <button
+            id="logout-btn"
+            class="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium transition-colors hover:bg-error-container text-error group border border-transparent hover:border-error"
+          >
+            <LogOut className="w-4 h-4" />
+            <span class="font-label uppercase tracking-wider text-[11px]">Cerrar Sesión</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col bg-surface relative overflow-hidden">
+        <!-- Blueprint Grid -->
+        <div class="absolute inset-0 grid-blueprint pointer-events-none opacity-40"></div>
+
+        <!-- Topbar -->
+        <header class="h-20 bg-surface/80 backdrop-blur-md border-bottom border-outline-variant flex items-center px-12 justify-between z-10 relative">
+          <div class="flex items-center gap-4">
+            <span class="w-2 h-2 bg-tertiary"></span>
+            <h2 class="font-headline text-lg font-bold uppercase tracking-tight">{title}</h2>
+          </div>
+          <div class="flex items-center gap-6">
+            <div class="flex flex-col items-end">
+              <span class="text-[10px] font-label font-bold text-secondary uppercase tracking-widest">Estado Sistema</span>
+              <span class="text-[11px] font-label text-primary font-bold uppercase">Online / Autenticado</span>
+            </div>
+            <div class="w-10 h-10 bg-surface-container-highest flex items-center justify-center">
+              <span class="text-xs font-bold font-headline">GD</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Scrollable Area -->
+        <div class="flex-1 overflow-y-auto p-12 relative z-0 no-scrollbar">
+          <slot />
+        </div>
+      </main>
+    </div>
+
+    <script>
+      import { supabase } from "@lib/supabase";
+      
+      const logoutBtn = document.getElementById("logout-btn");
+      logoutBtn?.addEventListener("click", async () => {
+        const { error } = await supabase.auth.signOut();
+        
+        // Clear session cookie
+        document.cookie = "dz-admin-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
+        
+        if (!error) {
+          // Redirect to login, maintaining current locale prefix from URL if possible
+          const pathParts = window.location.pathname.split('/');
+          const lang = pathParts[1] || 'es';
+          window.location.href = `/${lang}/admin/login`;
+        } else {
+          alert("Error al cerrar sesión: " + error.message);
+        }
+      });
+    </script>
+
+  </body>
+</html>

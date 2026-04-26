@@ -8,7 +8,7 @@ Web App Project Rules for Mechanical CAD Portfolio
 - Frontend: Astro (SSG/SSR), TypeScript 5
 - UI Components: Shadcn UI, React 19 (Islands), Lucide Icons
 - Styling: Tailwind CSS
-- Database/CMS: InsForge (Headless API)
+- Database/CMS: Supabase
 - Package Manager: pnpm
 
 ## Code Quality

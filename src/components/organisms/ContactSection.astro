@@ -1,6 +1,7 @@
 ---
 import SectionNumber from '@components/atoms/SectionNumber.astro';
 import { getLangFromUrl, useTranslations } from '@i18n/utils';
+import { supabase } from "@lib/supabase";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -179,26 +180,24 @@ const t = useTranslations(lang);
     submitBtn.textContent = 'Sending…';
 
     try {
-      /* Edge Function endpoint */
-      const response = await fetch('https://2x69jnc5.functions.insforge.app/contact-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const { supabase } = await import('@lib/supabase');
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert([payload]);
 
-      if (response.ok) {
-        status.textContent = '✓ Message sent successfully. Thank you!';
-        status.className = 'font-label text-[0.6875rem] uppercase tracking-[0.1em] text-on-primary/60';
-        status.classList.remove('hidden');
-        form.reset();
-      } else {
-        throw new Error('Failed to send');
-      }
-    } catch {
+      if (error) throw error;
+
+      status.textContent = '✓ Message sent successfully. Thank you!';
+      status.className = 'font-label text-[0.6875rem] uppercase tracking-[0.1em] text-on-primary/60';
+      status.classList.remove('hidden');
+      form.reset();
+    } catch (err: any) {
+      console.error('Submission error:', err);
       status.textContent = '✕ Failed to send. Please try again.';
       status.className = 'font-label text-[0.6875rem] uppercase tracking-[0.1em] text-error-container';
       status.classList.remove('hidden');
     } finally {
+
       submitBtn.disabled = false;
       submitBtn.textContent = 'Send Message';
     }

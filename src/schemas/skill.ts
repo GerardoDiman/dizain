@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const TranslationSchema = z.record(z.string()).or(z.string());
+
 export const SkillCategoryEnum = z.enum([
   'software',
   'education',
@@ -8,11 +10,11 @@ export const SkillCategoryEnum = z.enum([
 ]);
 
 export const SkillSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().uuid().optional(),
   category: SkillCategoryEnum,
-  label: z.string().min(1),
+  label: TranslationSchema,
   sort_order: z.number().int(),
-  created_at: z.string(),
+  created_at: z.string().optional(),
 });
 
 export type Skill = z.infer<typeof SkillSchema>;

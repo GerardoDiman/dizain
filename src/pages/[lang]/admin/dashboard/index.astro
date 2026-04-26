@@ -11,6 +11,10 @@ const { data: projects, error } = await supabase
   .select("*")
   .order("sort_order", { ascending: true });
 
+const { count: totalViews } = await supabase
+  .from("page_views")
+  .select("*", { count: 'exact', head: true });
+
 if (error) {
   console.error("Error fetching projects:", error.message);
 }
@@ -26,9 +30,13 @@ const t = (field: any) => {
 <AdminLayout title="Dashboard de Proyectos">
   <div class="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
     <!-- Header Stats / Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
       <div class="bg-surface-container-low p-8 border-l-4 border-primary">
-        <p class="text-[10px] font-label font-bold text-primary uppercase tracking-[0.2em] mb-2">Total Proyectos</p>
+        <p class="text-[10px] font-label font-bold text-primary uppercase tracking-[0.2em] mb-2">Vistas Totales</p>
+        <p class="text-4xl font-headline font-bold">{totalViews || 0}</p>
+      </div>
+      <div class="bg-surface-container-low p-8 border-l-4 border-secondary">
+        <p class="text-[10px] font-label font-bold text-secondary uppercase tracking-[0.2em] mb-2">Total Proyectos</p>
         <p class="text-4xl font-headline font-bold">{projects?.length || 0}</p>
       </div>
       <div class="bg-surface-container-low p-8 border-l-4 border-tertiary">

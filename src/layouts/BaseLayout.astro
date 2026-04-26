@@ -105,7 +105,8 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
       }
     </style>
 
-    <script define:vars={{ showPreloader }}>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script define:vars={{ showPreloader, supabaseUrl: import.meta.env.PUBLIC_SUPABASE_URL, supabaseAnonKey: import.meta.env.PUBLIC_SUPABASE_ANON_KEY }}>
       const isPreloaded = sessionStorage.getItem('dizain-preloaded');
       
       if (showPreloader && !isPreloaded) {
@@ -122,6 +123,32 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
           sessionStorage.setItem('dizain-preloaded', 'true');
         });
       }
+
+      // --- Analytics: Track Page View ---
+      (async () => {
+        try {
+          if (typeof supabase === 'undefined' || !supabaseUrl || !supabaseAnonKey) return;
+          
+          const client = supabase.createClient(supabaseUrl, supabaseAnonKey);
+          const path = window.location.pathname;
+          const parts = path.split('/').filter(Boolean);
+          const lang = parts[0] || 'es';
+          const slug = parts.slice(1).join('/') || 'home';
+
+          const { error } = await client.from('page_views').insert([{
+            slug,
+            lang,
+            user_agent: navigator.userAgent,
+            referrer: document.referrer || null
+          }]);
+
+          if (!error) {
+            console.debug('Analytics: Page view registered', { slug, lang });
+          }
+        } catch (e) {
+          console.debug('Analytics error:', e);
+        }
+      })();
     </script>
   </body>
 </html>

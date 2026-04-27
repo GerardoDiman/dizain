@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/supabase';
 import { Save, Trash2, Plus, Upload, X, Loader2, ChevronLeft, Image as ImageIcon, Box, Globe } from 'lucide-react';
+import { toast } from '@lib/toast';
 
 type Translation = Record<string, string>;
 
@@ -94,7 +95,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
 
       setProject(sanitizedData);
     } catch (err: any) {
-      alert('Error al cargar proyecto: ' + err.message);
+      toast.error('Error al cargar proyecto: ' + err.message);
     } finally {
       setIsLoading(false);
     }
@@ -162,7 +163,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
       
       setProject({ ...project, [field]: publicUrl });
     } catch (err: any) {
-      alert('Error al subir archivo: ' + err.message);
+      toast.error('Error al subir archivo: ' + err.message);
     } finally {
       setUploadingField(null);
     }
@@ -215,12 +216,12 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         if (specError) throw specError;
       }
 
-      alert('Proyecto guardado correctamente');
+      toast.success('Proyecto guardado correctamente');
       if (projectId === 'new') {
         window.location.href = `/${lang}/admin/projects/${pId}`;
       }
     } catch (err: any) {
-      alert('Error al guardar: ' + err.message);
+      toast.error('Error al guardar: ' + err.message);
     } finally {
       setIsSaving(false);
     }

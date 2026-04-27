@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/supabase';
 import { Save, Upload, Loader2, Link as LinkIcon, Mail, FileText, User, ExternalLink } from 'lucide-react';
+import { toast } from '@lib/toast';
 
 export default function ProfileEditor() {
   const [profile, setProfile] = useState<any>(null);
@@ -56,7 +57,7 @@ export default function ProfileEditor() {
 
       setProfile({ ...profile, [field]: publicUrl });
     } catch (err: any) {
-      alert('Error subiendo archivo: ' + err.message);
+      toast.error('Error subiendo archivo: ' + err.message);
     } finally {
       setUploadingField(null);
     }
@@ -80,9 +81,9 @@ export default function ProfileEditor() {
         .eq('id', profile.id);
 
       if (error) throw error;
-      alert('Perfil actualizado con éxito');
+      toast.success('Perfil actualizado con éxito');
     } catch (err: any) {
-      alert('Error guardando perfil: ' + err.message);
+      toast.error('Error guardando perfil: ' + err.message);
     } finally {
       setIsSaving(false);
     }

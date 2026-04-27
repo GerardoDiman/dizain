@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/supabase';
 import { Plus, Trash2, Save, Loader2, Cpu } from 'lucide-react';
+import { toast } from '@lib/toast';
 
 type Translation = Record<string, string>;
 
@@ -83,9 +84,9 @@ export default function SkillsManager() {
         if (insertError) throw insertError;
       }
 
-      alert('Habilidades guardadas correctamente');
+      toast.success('Habilidades guardadas correctamente');
     } catch (err: any) {
-      alert('Error al guardar: ' + err.message);
+      toast.error('Error al guardar: ' + err.message);
     } finally {
       setIsSaving(false);
     }

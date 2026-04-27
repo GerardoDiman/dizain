@@ -1,6 +1,7 @@
 ---
 import "@styles/global.css";
 import { LayoutDashboard, FolderKanban, Cpu, Settings, LogOut, User } from "lucide-react";
+import Toaster from "@components/admin/Toaster";
 
 interface Props {
   title: string;
@@ -100,9 +101,13 @@ const navItems = [
       </main>
     </div>
 
+    <Toaster client:load />
+
     <script>
       import { supabase } from "@lib/supabase";
+      import { toast } from "@lib/toast";
       
+
       const logoutBtn = document.getElementById("logout-btn");
       logoutBtn?.addEventListener("click", async () => {
         const { error } = await supabase.auth.signOut();
@@ -116,7 +121,7 @@ const navItems = [
           const lang = pathParts[1] || 'es';
           window.location.href = `/${lang}/admin/login`;
         } else {
-          alert("Error al cerrar sesión: " + error.message);
+          toast.error("Error al cerrar sesión: " + error.message);
         }
       });
     </script>

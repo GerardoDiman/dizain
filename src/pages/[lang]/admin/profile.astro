@@ -1,0 +1,20 @@
+---
+import AdminLayout from "@layouts/AdminLayout.astro";
+import ProfileEditor from "@components/admin/ProfileEditor";
+
+const { lang = 'es' } = Astro.params;
+---
+
+<AdminLayout title="Configuración de Perfil">
+  <div class="space-y-8">
+    <div class="flex items-center gap-4">
+      <div class="w-2 h-8 bg-primary"></div>
+      <div>
+        <h1 class="font-headline font-bold text-3xl uppercase tracking-tighter">Mi Perfil Profesional</h1>
+        <p class="text-[10px] font-label text-secondary uppercase tracking-[0.3em]">Gestiona tu identidad visual y datos de contacto</p>
+      </div>
+    </div>
+
+    <ProfileEditor client:load />
+  </div>
+</AdminLayout>

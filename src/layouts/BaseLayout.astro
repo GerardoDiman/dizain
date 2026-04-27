@@ -127,6 +127,14 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://dizain.v
       // --- Analytics: Track Page View ---
       (async () => {
         try {
+          // --- ENVIRONMENT FILTER ---
+          // Skip tracking if running locally to avoid inflating stats
+          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          if (isLocal) {
+            console.debug('Analytics: Local environment detected, skipping track');
+            return;
+          }
+
           if (typeof supabase === 'undefined' || !supabaseUrl || !supabaseAnonKey) return;
           
           const client = supabase.createClient(supabaseUrl, supabaseAnonKey);

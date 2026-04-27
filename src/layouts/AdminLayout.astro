@@ -1,6 +1,6 @@
 ---
 import "@styles/global.css";
-import { LayoutDashboard, FolderKanban, Cpu, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Cpu, Settings, LogOut, User } from "lucide-react";
 
 interface Props {
   title: string;
@@ -13,7 +13,7 @@ const navItems = [
   { name: "Dashboard", href: `/${lang}/admin/dashboard`, icon: LayoutDashboard },
   { name: "Proyectos", href: `/${lang}/admin/projects`, icon: FolderKanban },
   { name: "Habilidades", href: `/${lang}/admin/skills`, icon: Cpu },
-  { name: "Ajustes", href: `/${lang}/admin/settings`, icon: Settings },
+  { name: "Perfil", href: `/${lang}/admin/profile`, icon: User },
 ];
 ---
 

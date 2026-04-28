@@ -1,0 +1,137 @@
+---
+import AdminLayout from "@layouts/AdminLayout.astro";
+import { supabase } from "@lib/supabase";
+import { Plus, ExternalLink, Edit, FolderKanban, Search, Filter } from "lucide-react";
+
+const { lang = 'es' } = Astro.params;
+
+// Fetch all projects
+const { data: projects, error } = await supabase
+  .from("projects")
+  .select("*")
+  .order("sort_order", { ascending: true });
+
+if (error) {
+  console.error("Error fetching projects:", error.message);
+}
+
+// Helper to extract translation for display
+const t = (field: any) => {
+  if (!field) return '';
+  if (typeof field === 'string') return field;
+  return field[lang] || field['es'] || Object.values(field)[0] || '';
+};
+---
+
+<AdminLayout title="Archivo de Proyectos">
+  <div class="space-y-8 animate-in fade-in duration-700">
+    <!-- Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-surface-container-low p-6 border border-outline-variant">
+      <div class="flex items-center gap-4 flex-1">
+        <div class="relative flex-1 max-w-md group flex items-center">
+          <Search className="absolute left-4 w-4 h-4 text-outline group-focus-within:text-primary transition-colors pointer-events-none" />
+          <input 
+            id="project-search"
+            type="text" 
+            placeholder="BUSCAR PROYECTO..." 
+            class="w-full h-12 bg-surface-container-lowest border border-outline-variant pl-12 pr-4 outline-none focus:border-primary font-label text-[10px] uppercase tracking-widest transition-all focus:bg-surface leading-none"
+          />
+        </div>
+        <button class="flex items-center gap-2 px-5 py-3 border border-outline-variant hover:bg-surface-container-highest transition-colors bg-surface-container-lowest">
+          <Filter className="w-3 h-3 text-secondary" />
+          <span class="font-label text-[9px] font-bold uppercase tracking-[0.2em]">Filtrar</span>
+        </button>
+      </div>
+
+      <a 
+        href={`/${lang}/admin/projects/new`} 
+        class="bg-primary hover:bg-primary-container text-on-primary px-8 py-3 flex items-center gap-3 transition-all group shadow-xl"
+      >
+        <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
+        <span class="font-label text-xs font-bold uppercase tracking-widest">Nuevo Proyecto</span>
+      </a>
+    </div>
+
+    <!-- Project List -->
+    <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {projects?.map((project) => (
+        <div class="project-card bg-surface-container-low border border-outline-variant group overflow-hidden flex flex-col" data-title={t(project.title)} data-slug={project.slug}>
+          <div class="aspect-video bg-surface-container-highest relative overflow-hidden">
+            {project.thumbnail_url ? (
+              <img 
+                src={project.thumbnail_url} 
+                alt={t(project.title)} 
+                class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
+              />
+            ) : (
+              <div class="w-full h-full flex items-center justify-center opacity-20">
+                <FolderKanban size={48} />
+              </div>
+            )}
+            
+            <div class="absolute top-4 right-4">
+              <span class={`px-3 py-1 text-[8px] font-bold uppercase tracking-[0.2em] shadow-sm ${project.is_published ? 'bg-tertiary text-on-tertiary' : 'bg-surface-container-highest text-secondary border border-outline-variant'}`}>
+                {project.is_published ? 'Publicado' : 'Borrador'}
+              </span>
+            </div>
+
+            <div class="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+              <a 
+                href={`/${lang}/admin/projects/${project.id}`}
+                class="bg-white text-primary p-3 hover:scale-110 transition-transform"
+                title="Editar Proyecto"
+              >
+                <Edit className="w-5 h-5" />
+              </a>
+              <a 
+                href={`/${lang}/projects/${project.slug}`}
+                target="_blank"
+                class="bg-white text-tertiary p-3 hover:scale-110 transition-transform"
+                title="Ver Vista Previa"
+              >
+                <ExternalLink className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+
+          <div class="p-6 flex-1 flex flex-col">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="w-1 h-3 bg-primary"></span>
+              <span class="font-label text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">
+                {t(project.software) || 'INGENIERÍA MECÁNICA'}
+              </span>
+            </div>
+            
+            <h4 class="font-headline font-bold uppercase text-lg leading-tight mb-2 group-hover:text-primary transition-colors">
+              {t(project.title)}
+            </h4>
+            
+            <p class="font-body text-xs text-secondary line-clamp-2 mb-6">
+              {t(project.subtitle)}
+            </p>
+
+            <div class="mt-auto pt-6 border-t border-outline-variant flex items-center justify-between">
+              <div class="flex gap-1">
+                {project.title?.es && <span class="text-[8px] font-bold border border-outline-variant px-1 text-secondary">ES</span>}
+                {project.title?.en && <span class="text-[8px] font-bold border border-outline-variant px-1 text-secondary">EN</span>}
+              </div>
+              <span class="font-label text-[10px] font-bold text-outline uppercase">
+                ID: {project.slug?.substring(0, 8)}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {!projects?.length && (
+      <div class="bg-surface-container-low border border-outline-variant border-dashed p-32 text-center">
+        <FolderKanban className="w-12 h-12 text-outline-variant mx-auto mb-4" />
+        <p class="font-label text-xs text-secondary uppercase tracking-[0.3em]">No se han creado proyectos técnicos</p>
+        <a href={`/${lang}/admin/projects/new`} class="inline-block mt-8 text-[10px] font-bold text-primary uppercase border-b border-primary hover:text-primary-container">
+          Empezar primer proyecto
+        </a>
+      </div>
+    )}
+  </div>
+</AdminLayout>

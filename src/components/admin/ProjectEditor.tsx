@@ -4,6 +4,15 @@ import { Save, Trash2, Plus, Upload, X, Loader2, ChevronLeft, Image as ImageIcon
 import { toast } from '@lib/toast';
 import Select from './ui/Select';
 
+// Declaración para model-viewer
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'model-viewer': any;
+    }
+  }
+}
+
 type Translation = Record<string, string>;
 
 interface Spec {
@@ -199,12 +208,26 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         setUrlsToDelete(prev => [...prev, oldUrl]);
       }
 
-      setPendingFiles({ ...pendingFiles, [field.replace('_url', '')]: file });
+      const key = field.replace('_url', '').replace('_image', '');
+      setPendingFiles({ ...pendingFiles, [key]: file });
       setProject({ ...project, [field]: preview });
     }
     
     // Limpiar el input para permitir subir el mismo archivo si se borra
     e.target.value = '';
+  };
+
+  const handleRemoveField = (field: 'thumbnail_url' | 'hero_image_url' | 'model_url') => {
+    const oldUrl = project[field];
+    if (oldUrl && typeof oldUrl === 'string' && !oldUrl.startsWith('blob:')) {
+      setUrlsToDelete(prev => [...prev, oldUrl]);
+    }
+    
+    // También limpiar de archivos pendientes si existía
+    const key = field.replace('_url', '').replace('_image', '');
+    setPendingFiles(prev => ({ ...prev, [key]: null }));
+    
+    setProject({ ...project, [field]: '' });
   };
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
@@ -243,6 +266,14 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     setProject({ ...project, project_images: reordered });
   };
 
+  const removeModel = () => {
+    if (project.model_url && !project.model_url.startsWith('blob:')) {
+      setUrlsToDelete(prev => [...prev, project.model_url]);
+    }
+    setProject({ ...project, model_url: '' });
+    setPendingFiles(prev => ({ ...prev, model: undefined }));
+  };
+
   const removeGalleryImage = (index: number) => {
     const img = project.project_images?.[index];
     const newImages = [...(project.project_images || [])];
@@ -269,17 +300,18 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     try {
       // 1. Subir archivos pendientes
       let finalThumbnail = project.thumbnail_url;
-      let finalHero = project.hero_image_url;
-      let finalModel = project.model_url;
-      
       if (pendingFiles.thumbnail) {
         setUploadingField('thumbnail_url');
         finalThumbnail = await uploadFile(pendingFiles.thumbnail, project.slug);
       }
+
+      let finalHero = project.hero_image_url;
       if (pendingFiles.hero) {
         setUploadingField('hero_image_url');
         finalHero = await uploadFile(pendingFiles.hero, project.slug);
       }
+
+      let finalModel = project.model_url;
       if (pendingFiles.model) {
         setUploadingField('model_url');
         finalModel = await uploadFile(pendingFiles.model, project.slug);
@@ -363,7 +395,12 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
       }
       
       // Limpiar archivos pendientes tras éxito
-      setPendingFiles({ gallery: [] });
+      setPendingFiles({ 
+        thumbnail: null, 
+        hero: null, 
+        model: null, 
+        gallery: [] 
+      });
 
       // Actualizar el estado local con las URLs finales del servidor
       setProject({ 
@@ -377,34 +414,41 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
       // 4. Eliminar físicamente los archivos del bucket que fueron descartados
       if (urlsToDelete.length > 0) {
         try {
+          console.log('--- INICIO STORAGE CLEANUP ---');
           const pathsToDelete = urlsToDelete.map(url => {
-            // Decodificar la URL para manejar espacios y caracteres especiales
             const decodedUrl = decodeURIComponent(url);
-            const parts = decodedUrl.split('/');
+            const parts = decodedUrl.split('project-assets/');
+            if (parts.length < 2) return null;
             
-            // Buscar el nombre del bucket o la palabra 'objects' como punto de referencia
-            let idx = parts.indexOf('project-assets');
-            if (idx === -1) idx = parts.indexOf('objects');
-            
-            // La ruta real empieza justo después del nombre del bucket o de 'objects'
-            const path = parts.slice(idx + 1).join('/');
-            
-            // Si el primer elemento del path resultante es 'objects', lo quitamos (caso InsForge)
-            if (path.startsWith('objects/')) {
-              return path.replace('objects/', '');
-            }
+            let path = parts[1].split('?')[0].replace(/^\/+/, '');
             return path;
-          }).filter(path => path.length > 0 && !path.startsWith('http'));
+          }).filter((path): path is string => path !== null && path.length > 0);
+
+          console.log('URLs originales:', urlsToDelete);
+          console.log('Paths procesados para borrar:', pathsToDelete);
 
           if (pathsToDelete.length > 0) {
-            const { error: deleteError } = await supabase.storage.from('project-assets').remove(pathsToDelete);
+            // PRUEBA DE INSPECCIÓN: Ver qué hay realmente en la carpeta
+            for (const path of pathsToDelete) {
+              const folder = path.split('/')[0];
+              const { data: listData } = await supabase.storage.from('project-assets').list(folder);
+              console.log(`Contenido real de la carpeta "${folder}":`, listData);
+            }
+
+            const { data, error: deleteError } = await supabase.storage.from('project-assets').remove(pathsToDelete);
+            
             if (deleteError) {
-              console.error('Error al eliminar archivos del bucket:', deleteError);
+              console.error('Error de Supabase al borrar:', deleteError);
+              toast.error('Error al borrar archivos: ' + deleteError.message);
+            } else if (data && data.length > 0) {
+              console.log('Confirmación de borrado exitoso:', data);
+              toast.success(`${data.length} archivos eliminados físicamente del bucket`);
             } else {
-              console.log('Archivos eliminados del bucket:', pathsToDelete);
-              toast.success(`${pathsToDelete.length} archivos antiguos eliminados del servidor`);
+              console.warn('Supabase no encontró los archivos para borrar. Comparar con el "Contenido real" de arriba.', pathsToDelete);
+              toast.error('No se pudo localizar el archivo en el servidor');
             }
           }
+          console.log('--- FIN STORAGE CLEANUP ---');
           setUrlsToDelete([]);
         } catch (storageErr) {
           console.error('Error crítico limpiando bucket:', storageErr);
@@ -653,7 +697,11 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                     <>
                       <img src={project.thumbnail_url} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button onClick={() => setProject({...project, thumbnail_url: ''})} className="text-white">
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveField('thumbnail_url')} 
+                          className="text-white hover:text-error transition-colors"
+                        >
                           <Trash2 className="w-6 h-6" />
                         </button>
                       </div>
@@ -683,7 +731,11 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                     <>
                       <img src={project.hero_image_url} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button onClick={() => setProject({...project, hero_image_url: ''})} className="text-white">
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveField('hero_image_url')} 
+                          className="text-white hover:text-error transition-colors"
+                        >
                           <Trash2 className="w-6 h-6" />
                         </button>
                       </div>
@@ -708,22 +760,59 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
               {/* 3D Model */}
               <div className="space-y-3">
                 <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Modelo 3D (.glb)</label>
-                <div className="bg-surface-container-lowest border border-outline-variant p-4 flex items-center gap-4">
-                  <Box className="w-6 h-6 text-tertiary" />
-                  <div className="flex-1 overflow-hidden">
-                    <input 
-                      type="text" 
-                      name="model_url" 
-                      value={project.model_url || ''} 
-                      onChange={handleInputChange}
-                      className="w-full bg-transparent border-none outline-none font-label text-[10px] uppercase truncate"
-                      placeholder="SIN MODELO 3D"
-                    />
+                <div className="bg-surface-container-lowest border border-outline-variant p-4 flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <Box className="w-6 h-6 text-tertiary" />
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-[10px] uppercase truncate text-on-surface/60 font-mono">
+                        {project.model_url ? project.model_url.split('/').pop() : 'SIN MODELO 3D'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {project.model_url && (
+                        <button 
+                          onClick={removeModel}
+                          className="p-2 text-outline hover:text-error transition-colors"
+                          title="Eliminar modelo"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <label className="cursor-pointer p-2 hover:bg-surface-container transition-colors group">
+                        <Upload className="w-4 h-4 group-hover:text-primary" />
+                        <input type="file" className="hidden" accept=".glb" onChange={(e) => handleFileUpload(e, 'model_url')} />
+                      </label>
+                    </div>
                   </div>
-                  <label className="cursor-pointer p-2 hover:bg-surface-container transition-colors">
-                    <Upload className="w-4 h-4" />
-                    <input type="file" className="hidden" accept=".glb,.gltf" onChange={(e) => handleFileUpload(e, 'model_url')} />
-                  </label>
+
+                  {project.model_url && (
+                    <div className="relative aspect-video bg-black/5 border border-outline/10 overflow-hidden group/model">
+                      <model-viewer
+                        src={project.model_url}
+                        auto-rotate
+                        camera-controls
+                        shadow-intensity="1"
+                        environment-image="neutral"
+                        exposure="1"
+                        class="w-full h-full"
+                        style={{ backgroundColor: 'transparent' }}
+                      >
+                        <div slot="poster" className="flex items-center justify-center h-full text-[10px] text-outline uppercase tracking-widest bg-surface-container-low">
+                          Cargando Modelo...
+                        </div>
+                      </model-viewer>
+                      
+                      <div className="absolute top-3 left-3 bg-primary/90 text-on-primary px-2 py-0.5 text-[8px] uppercase tracking-[0.2em] font-bold pointer-events-none">
+                        PREVIEW 3D
+                      </div>
+                      
+                      {project.model_url.startsWith('blob:') && (
+                        <div className="absolute bottom-3 right-3 text-[8px] text-tertiary bg-white/80 px-2 py-0.5 backdrop-blur-sm font-bold uppercase tracking-widest border border-tertiary/20">
+                          Pendiente de Guardar
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

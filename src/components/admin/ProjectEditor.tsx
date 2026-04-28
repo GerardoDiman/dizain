@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/supabase';
-import { Save, Trash2, Plus, Upload, X, Loader2, ChevronLeft, Image as ImageIcon, Box, Globe, Eye, Maximize2, ExternalLink } from 'lucide-react';
+import { Save, Trash2, Plus, Upload, X, Loader2, ChevronLeft, Image as ImageIcon, Box, Globe, Eye, Maximize2, ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast } from '@lib/toast';
 import Select from './ui/Select';
 
@@ -62,6 +62,19 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  
+  // Estado para archivos que están pendientes de subirse
+  const [pendingFiles, setPendingFiles] = useState<{
+    thumbnail?: File;
+    hero?: File;
+    model?: File;
+    gallery: { file: File; preview: string; id: string }[];
+  }>({
+    gallery: []
+  });
+
+  // URLs que deben ser eliminadas del bucket al guardar con éxito
+  const [urlsToDelete, setUrlsToDelete] = useState<string[]>([]);
 
   useEffect(() => {
     if (projectId && projectId !== 'new') {
@@ -151,62 +164,146 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setUploadingField(field);
-    try {
-      const uploadedUrls: string[] = [];
+    if (!project.slug) {
+      toast.error('Define un Slug antes de añadir archivos para organizar la carpeta');
+      return;
+    }
+
+    if (field === 'gallery') {
+      const newPendingGallery = [...pendingFiles.gallery];
+      const newProjectImages = [...(project.project_images || [])];
       
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-        const { data, error } = await supabase.storage
-          .from('project-assets')
-          .upload(fileName, file);
-
-        if (error) throw error;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('project-assets')
-          .getPublicUrl(data.path);
+        const preview = URL.createObjectURL(file);
+        const tempId = `temp-${Date.now()}-${i}`;
         
-        uploadedUrls.push(publicUrl);
+        newPendingGallery.push({ file, preview, id: tempId });
+        newProjectImages.push({
+          image_url: preview, // Usamos la preview temporal para mostrarla ya
+          alt_text: project.title.es || 'Project Image',
+          sort_order: newProjectImages.length,
+          id: tempId // Guardamos el ID temporal para identificarlo al guardar
+        } as any);
       }
       
-      if (field === 'gallery') {
-        const existingUrls = new Set((project.project_images || []).map(img => img.image_url));
-        const newImages = [...(project.project_images || [])];
-        
-        uploadedUrls.forEach(url => {
-          if (!existingUrls.has(url)) {
-            newImages.push({
-              image_url: url,
-              alt_text: project.title.es || 'Project Image',
-              sort_order: newImages.length
-            });
-            existingUrls.add(url);
-          }
-        });
-        
-        setProject({ ...project, project_images: newImages });
-      } else {
-        // Single file fields take the first one
-        setProject({ ...project, [field]: uploadedUrls[0] });
+      setPendingFiles({ ...pendingFiles, gallery: newPendingGallery });
+      setProject({ ...project, project_images: newProjectImages });
+    } else {
+      const file = files[0];
+      const preview = URL.createObjectURL(file);
+      
+      // Si ya había una imagen guardada en este campo, marcarla para borrar
+      const oldUrl = project[field as keyof typeof project] as string;
+      if (oldUrl && !oldUrl.startsWith('blob:')) {
+        setUrlsToDelete(prev => [...prev, oldUrl]);
       }
-    } catch (err: any) {
-      toast.error('Error al subir: ' + err.message);
-    } finally {
-      setUploadingField(null);
+
+      setPendingFiles({ ...pendingFiles, [field.replace('_url', '')]: file });
+      setProject({ ...project, [field]: preview });
     }
+    
+    // Limpiar el input para permitir subir el mismo archivo si se borra
+    e.target.value = '';
+  };
+
+  const uploadFile = async (file: File, folder: string): Promise<string> => {
+    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const cleanSlug = folder.trim().replace(/^\/+|\/+$/g, '').replace(/\s+/g, '-');
+    const filePath = `${cleanSlug}/${fileName}`;
+    
+    const { data, error } = await supabase.storage
+      .from('project-assets')
+      .upload(filePath, file);
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('project-assets')
+      .getPublicUrl(data.path);
+    
+    return publicUrl;
+  };
+
+  const moveGalleryImage = (index: number, direction: 'left' | 'right') => {
+    const newImages = [...(project.project_images || [])];
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    
+    if (targetIndex < 0 || targetIndex >= newImages.length) return;
+    
+    // Swap
+    [newImages[index], newImages[targetIndex]] = [newImages[targetIndex], newImages[index]];
+    
+    // Refresh all sort_orders based on new position
+    const reordered = newImages.map((img, i) => ({
+      ...img,
+      sort_order: i
+    }));
+    
+    setProject({ ...project, project_images: reordered });
   };
 
   const removeGalleryImage = (index: number) => {
+    const img = project.project_images?.[index];
     const newImages = [...(project.project_images || [])];
     newImages.splice(index, 1);
+    
+    if (img) {
+      // Si era una imagen ya guardada en el servidor (no temporal), marcar para borrar
+      if (img.image_url && !img.image_url.startsWith('blob:')) {
+        setUrlsToDelete(prev => [...prev, img.image_url]);
+      }
+      
+      // Si era una imagen pendiente de subir, quitarla de pendingFiles
+      if (img.id?.startsWith('temp-')) {
+        const newPendingGallery = pendingFiles.gallery.filter(p => p.id !== img.id);
+        setPendingFiles({ ...pendingFiles, gallery: newPendingGallery });
+      }
+    }
+    
     setProject({ ...project, project_images: newImages });
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // 1. Subir archivos pendientes
+      let finalThumbnail = project.thumbnail_url;
+      let finalHero = project.hero_image_url;
+      let finalModel = project.model_url;
+      
+      if (pendingFiles.thumbnail) {
+        setUploadingField('thumbnail_url');
+        finalThumbnail = await uploadFile(pendingFiles.thumbnail, project.slug);
+      }
+      if (pendingFiles.hero) {
+        setUploadingField('hero_image_url');
+        finalHero = await uploadFile(pendingFiles.hero, project.slug);
+      }
+      if (pendingFiles.model) {
+        setUploadingField('model_url');
+        finalModel = await uploadFile(pendingFiles.model, project.slug);
+      }
+
+      const finalGalleryImages = [...(project.project_images || [])];
+      for (let i = 0; i < finalGalleryImages.length; i++) {
+        const img = finalGalleryImages[i];
+        if (img.id?.startsWith('temp-')) {
+          setUploadingField('gallery');
+          const pending = pendingFiles.gallery.find(p => p.id === img.id);
+          if (pending) {
+            const uploadedUrl = await uploadFile(pending.file, project.slug);
+            finalGalleryImages[i] = {
+              ...img,
+              image_url: uploadedUrl,
+              id: undefined // Quitar ID temporal
+            };
+          }
+        }
+      }
+
+      setUploadingField(null);
+
       const projectData = { 
         title: project.title,
         slug: project.slug,
@@ -214,9 +311,9 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         description: project.description,
         workbench: project.workbench,
         software: project.software,
-        thumbnail_url: project.thumbnail_url,
-        hero_image_url: project.hero_image_url,
-        model_url: project.model_url,
+        thumbnail_url: finalThumbnail,
+        hero_image_url: finalHero,
+        model_url: finalModel,
         sort_order: project.sort_order,
         is_published: project.is_published
       };
@@ -253,8 +350,8 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
 
       // Handle Gallery Images
       await supabase.from('project_images').delete().eq('project_id', pId);
-      if (project.project_images?.length) {
-        const imagesToInsert = project.project_images.map(img => ({
+      if (finalGalleryImages.length) {
+        const imagesToInsert = finalGalleryImages.map(img => ({
           image_url: img.image_url,
           alt_text: img.alt_text,
           caption: img.caption,
@@ -263,6 +360,55 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         }));
         const { error: imgError } = await supabase.from('project_images').insert(imagesToInsert);
         if (imgError) throw imgError;
+      }
+      
+      // Limpiar archivos pendientes tras éxito
+      setPendingFiles({ gallery: [] });
+
+      // Actualizar el estado local con las URLs finales del servidor
+      setProject({ 
+        ...project, 
+        thumbnail_url: finalThumbnail, 
+        hero_image_url: finalHero, 
+        model_url: finalModel, 
+        project_images: finalGalleryImages 
+      });
+
+      // 4. Eliminar físicamente los archivos del bucket que fueron descartados
+      if (urlsToDelete.length > 0) {
+        try {
+          const pathsToDelete = urlsToDelete.map(url => {
+            // Decodificar la URL para manejar espacios y caracteres especiales
+            const decodedUrl = decodeURIComponent(url);
+            const parts = decodedUrl.split('/');
+            
+            // Buscar el nombre del bucket o la palabra 'objects' como punto de referencia
+            let idx = parts.indexOf('project-assets');
+            if (idx === -1) idx = parts.indexOf('objects');
+            
+            // La ruta real empieza justo después del nombre del bucket o de 'objects'
+            const path = parts.slice(idx + 1).join('/');
+            
+            // Si el primer elemento del path resultante es 'objects', lo quitamos (caso InsForge)
+            if (path.startsWith('objects/')) {
+              return path.replace('objects/', '');
+            }
+            return path;
+          }).filter(path => path.length > 0 && !path.startsWith('http'));
+
+          if (pathsToDelete.length > 0) {
+            const { error: deleteError } = await supabase.storage.from('project-assets').remove(pathsToDelete);
+            if (deleteError) {
+              console.error('Error al eliminar archivos del bucket:', deleteError);
+            } else {
+              console.log('Archivos eliminados del bucket:', pathsToDelete);
+              toast.success(`${pathsToDelete.length} archivos antiguos eliminados del servidor`);
+            }
+          }
+          setUrlsToDelete([]);
+        } catch (storageErr) {
+          console.error('Error crítico limpiando bucket:', storageErr);
+        }
       }
 
       toast.success('Proyecto guardado correctamente');
@@ -610,7 +756,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {project.project_images?.map((img, index) => (
-            <div key={index} className="aspect-square bg-surface-container-lowest border border-outline-variant relative group overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div key={`${img.image_url}-${index}`} className="aspect-square bg-surface-container-lowest border border-outline-variant relative group overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <img src={img.image_url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                 <button 
@@ -620,6 +766,22 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                 >
                   <Maximize2 className="w-4 h-4" />
                 </button>
+                <div className="flex flex-col gap-2">
+                  <button 
+                    onClick={() => moveGalleryImage(index, 'left')}
+                    disabled={index === 0}
+                    className="bg-white/20 text-white p-1.5 hover:bg-white/40 disabled:opacity-30 disabled:hover:bg-white/20 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => moveGalleryImage(index, 'right')}
+                    disabled={index === (project.project_images?.length || 0) - 1}
+                    className="bg-white/20 text-white p-1.5 hover:bg-white/40 disabled:opacity-30 disabled:hover:bg-white/20 transition-colors"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
                 <button 
                   onClick={() => removeGalleryImage(index)}
                   className="bg-error text-white p-2.5 hover:scale-110 transition-transform"

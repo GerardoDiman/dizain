@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/supabase';
 import { Save, Trash2, Plus, Upload, X, Loader2, ChevronLeft, Image as ImageIcon, Box, Globe } from 'lucide-react';
 import { toast } from '@lib/toast';
+import Select from './ui/Select';
 
 type Translation = Record<string, string>;
 
@@ -266,17 +267,17 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-surface-container px-4 py-2 border border-outline-variant">
+          <div className="flex items-center gap-2 bg-surface-container px-4 py-1.5 border border-outline-variant">
             <span className="text-[10px] font-label font-bold uppercase tracking-widest text-secondary">Estado:</span>
-            <select 
-              name="is_published" 
+            <Select 
               value={project.is_published ? 'true' : 'false'}
-              onChange={(e) => setProject({...project, is_published: e.target.value === 'true'})}
-              className="bg-transparent text-[10px] font-bold uppercase tracking-widest outline-none border-none text-primary"
-            >
-              <option value="false">Borrador</option>
-              <option value="true">Publicado</option>
-            </select>
+              onChange={(val) => setProject({...project, is_published: val === 'true'})}
+              options={[
+                { value: 'false', label: 'BORRADOR' },
+                { value: 'true', label: 'PUBLICADO' },
+              ]}
+              className="min-w-[120px]"
+            />
           </div>
           <button 
             onClick={handleSave}

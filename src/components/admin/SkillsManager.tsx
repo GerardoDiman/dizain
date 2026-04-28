@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@lib/supabase';
-import { Plus, Trash2, Save, Loader2, Cpu } from 'lucide-react';
+import { Plus, Trash2, Save, Loader2, Cpu, Hash } from 'lucide-react';
 import { toast } from '@lib/toast';
+import Select from './ui/Select';
 
 type Translation = Record<string, string>;
 
@@ -120,28 +121,28 @@ export default function SkillsManager() {
       <div className="bg-surface-container-low border border-outline-variant overflow-hidden">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-surface-container border-b border-outline-variant">
-              <th className="px-6 py-4 font-label text-[10px] font-bold text-secondary uppercase tracking-widest">Categoría</th>
-              <th className="px-6 py-4 font-label text-[10px] font-bold text-secondary uppercase tracking-widest w-1/3">Etiqueta (ES)</th>
-              <th className="px-6 py-4 font-label text-[10px] font-bold text-secondary uppercase tracking-widest w-1/3">Etiqueta (EN)</th>
-              <th className="px-6 py-4 font-label text-[10px] font-bold text-secondary uppercase tracking-widest">Orden</th>
-              <th className="px-6 py-4 font-label text-[10px] font-bold text-secondary uppercase tracking-widest text-right"></th>
+            <tr className="bg-surface-container border-b border-outline">
+              <th className="px-6 py-5 font-label text-[10px] font-bold text-secondary uppercase tracking-[0.2em] w-1/4">Categoría</th>
+              <th className="px-6 py-5 font-label text-[10px] font-bold text-secondary uppercase tracking-[0.2em] w-[30%]">Etiqueta (ES)</th>
+              <th className="px-6 py-5 font-label text-[10px] font-bold text-secondary uppercase tracking-[0.2em] w-[30%]">Etiqueta (EN)</th>
+              <th className="px-6 py-5 font-label text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Orden</th>
+              <th className="px-6 py-5 font-label text-[10px] font-bold text-secondary uppercase tracking-[0.2em] text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {skills.map((skill, index) => (
               <tr key={index} className="border-b border-outline-variant hover:bg-surface-container/30 transition-colors">
-                <td className="px-6 py-4">
-                  <select 
+                <td className="px-6 py-4 min-w-[160px]">
+                  <Select 
                     value={skill.category}
-                    onChange={(e) => updateSkill(index, 'category', e.target.value)}
-                    className="bg-transparent border-none outline-none font-label text-[11px] uppercase tracking-wider text-primary font-bold"
-                  >
-                    <option value="software">Software</option>
-                    <option value="education">Educación</option>
-                    <option value="languages">Idiomas</option>
-                    <option value="design">Diseño</option>
-                  </select>
+                    onChange={(val) => updateSkill(index, 'category', val)}
+                    options={[
+                      { value: 'software', label: 'Software' },
+                      { value: 'education', label: 'Educación' },
+                      { value: 'languages', label: 'Idiomas' },
+                      { value: 'design', label: 'Diseño' },
+                    ]}
+                  />
                 </td>
                 <td className="px-6 py-4">
                   <input 
@@ -162,12 +163,15 @@ export default function SkillsManager() {
                   />
                 </td>
                 <td className="px-6 py-4">
-                  <input 
-                    type="number" 
-                    value={skill.sort_order}
-                    onChange={(e) => updateSkill(index, 'sort_order', parseInt(e.target.value))}
-                    className="bg-transparent border-b border-outline-variant focus:border-primary outline-none font-body text-sm w-12"
-                  />
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-3 h-3 text-outline" />
+                    <input 
+                      type="number" 
+                      value={skill.sort_order}
+                      onChange={(e) => updateSkill(index, 'sort_order', parseInt(e.target.value))}
+                      className="bg-transparent border-b border-outline-variant focus:border-primary outline-none font-body text-sm w-12 text-center"
+                    />
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button onClick={() => removeSkill(index)} className="p-2 text-outline hover:text-error transition-colors">

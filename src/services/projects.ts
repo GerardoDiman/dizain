@@ -30,7 +30,6 @@ export async function getPublishedProjects(lang: string = 'es'): Promise<Project
     subtitle: translate(p.subtitle, lang),
     description: translate(p.description, lang),
     workbench: translate(p.workbench, lang),
-    software: translate(p.software, lang),
     project_specs: p.project_specs?.map((s: any) => ({
       ...s,
       label: translate(s.label, lang),
@@ -69,7 +68,6 @@ export async function getProjectBySlug(slug: string, lang: string = 'es'): Promi
     subtitle: translate(data.subtitle, lang),
     description: translate(data.description, lang),
     workbench: translate(data.workbench, lang),
-    software: translate(data.software, lang),
     project_specs: data.project_specs?.map((s: any) => ({
       ...s,
       label: translate(s.label, lang),

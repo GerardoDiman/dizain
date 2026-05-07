@@ -1,0 +1,41 @@
+---
+import AdminLayout from "@layouts/AdminLayout.astro";
+import { SpecManager } from "@components/admin/SpecManager";
+import { Settings2, ArrowLeft } from "lucide-react";
+
+const { lang = 'es' } = Astro.params;
+---
+
+<AdminLayout title="Gestión de Especificaciones">
+  <div class="space-y-8">
+    <!-- Breadcrumbs / Back -->
+    <div class="flex items-center justify-between">
+      <a 
+        href={`/${lang}/admin/dashboard`} 
+        class="flex items-center gap-2 text-secondary hover:text-primary transition-colors group"
+      >
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <span class="font-label text-[10px] font-bold uppercase tracking-widest">Volver al Dashboard</span>
+      </a>
+
+      <div class="flex items-center gap-2 text-outline">
+        <Settings2 className="w-4 h-4" />
+        <span class="font-label text-[10px] font-bold uppercase tracking-widest">Configuración del Sistema</span>
+      </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="flex flex-col gap-2">
+      <h1 class="text-4xl font-headline font-bold uppercase tracking-tight">Sistema de Especificaciones</h1>
+      <p class="text-xs text-secondary font-body max-w-2xl">
+        Administra las categorías y valores que se utilizan en la ficha técnica de cada proyecto. 
+        Los cambios realizados aquí se reflejarán instantáneamente en el editor de proyectos.
+      </p>
+    </div>
+
+    <hr class="border-outline-variant" />
+
+    <!-- Manager Component -->
+    <SpecManager client:load lang={lang} />
+  </div>
+</AdminLayout>

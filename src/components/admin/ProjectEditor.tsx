@@ -37,7 +37,6 @@ interface Project {
   subtitle: Translation;
   description: Translation;
   workbench: Translation;
-  software: Translation;
   thumbnail_url?: string;
   hero_image_url?: string;
   model_url?: string;
@@ -46,6 +45,7 @@ interface Project {
   project_type: 'project' | 'component' | 'study';
   project_specs?: Spec[];
   project_images?: ProjectImage[];
+  preview_url?: string;
 }
 
 interface Props {
@@ -61,12 +61,12 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     subtitle: { es: '', en: '' },
     description: { es: '', en: '' },
     workbench: { es: '', en: '' },
-    software: { es: '', en: '' },
     sort_order: 0,
     is_published: false,
     project_type: 'project',
     project_specs: [],
     project_images: [],
+    preview_url: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -86,12 +86,39 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
 
   // URLs que deben ser eliminadas del bucket al guardar con éxito
   const [urlsToDelete, setUrlsToDelete] = useState<string[]>([]);
+  const [specLabels, setSpecLabels] = useState<any[]>([]);
+  const [specOptions, setSpecOptions] = useState<any[]>([]);
 
   useEffect(() => {
     if (projectId && projectId !== 'new') {
       fetchProject();
     }
+    fetchSpecHierarchy();
   }, [projectId]);
+
+  const fetchSpecHierarchy = async () => {
+    try {
+      // Fetch labels
+      const { data: labels, error: labelsError } = await supabase
+        .from('spec_labels')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (labelsError) throw labelsError;
+      setSpecLabels(labels || []);
+
+      // Fetch all options
+      const { data: options, error: optionsError } = await supabase
+        .from('spec_options')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (optionsError) throw optionsError;
+      setSpecOptions(options || []);
+    } catch (error) {
+      console.error('Error fetching spec hierarchy:', error);
+    }
+  };
 
   const fetchProject = async () => {
     setIsLoading(true);
@@ -111,7 +138,6 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         subtitle: typeof data.subtitle === 'string' ? { es: data.subtitle, en: '' } : data.subtitle || { es: '', en: '' },
         description: typeof data.description === 'string' ? { es: data.description, en: '' } : data.description || { es: '', en: '' },
         workbench: typeof data.workbench === 'string' ? { es: data.workbench, en: '' } : data.workbench || { es: '', en: '' },
-        software: typeof data.software === 'string' ? { es: data.software, en: '' } : data.software || { es: '', en: '' },
         project_type: data.project_type || 'project',
         project_specs: data.project_specs?.map((s: any) => ({
           ...s,
@@ -133,7 +159,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     const { name, value, type } = e.target as HTMLInputElement;
     const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
     
-    const translatableFields = ['title', 'subtitle', 'description', 'workbench', 'software'];
+    const translatableFields = ['title', 'subtitle', 'description', 'workbench'];
     
     if (translatableFields.includes(name)) {
       setProject({
@@ -153,6 +179,31 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     const spec = { ...newSpecs[index] };
     spec[field] = { ...spec[field], [editingLang]: value };
     newSpecs[index] = spec;
+    setProject({ ...project, project_specs: newSpecs });
+  };
+
+  const handleSelectLabel = (index: number, labelId: string) => {
+    const label = specLabels.find(l => l.id === labelId);
+    if (!label) return;
+
+    const newSpecs = [...(project.project_specs || [])];
+    newSpecs[index] = {
+      ...newSpecs[index],
+      label: label.name,
+      value: { es: '', en: '' } // Reset value when label changes
+    };
+    setProject({ ...project, project_specs: newSpecs });
+  };
+
+  const handleSelectOption = (index: number, optionId: string) => {
+    const option = specOptions.find(o => o.id === optionId);
+    if (!option) return;
+
+    const newSpecs = [...(project.project_specs || [])];
+    newSpecs[index] = {
+      ...newSpecs[index],
+      value: option.value
+    };
     setProject({ ...project, project_specs: newSpecs });
   };
 
@@ -345,13 +396,13 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         subtitle: project.subtitle,
         description: project.description,
         workbench: project.workbench,
-        software: project.software,
         thumbnail_url: finalThumbnail,
         hero_image_url: finalHero,
         model_url: finalModel,
         sort_order: project.sort_order,
         is_published: project.is_published,
-        project_type: project.project_type
+        project_type: project.project_type,
+        preview_url: project.preview_url
       };
 
       let pId = projectId;
@@ -520,31 +571,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
               <ExternalLink className="w-3.5 h-3.5" /> Vista Previa Pública
             </a>
           )}
-          <div className="flex items-center gap-3">
-            <span className="text-[9px] font-label font-bold uppercase tracking-[0.2em] text-secondary">Tipo</span>
-            <Select 
-              value={project.project_type}
-              onChange={(val) => setProject({...project, project_type: val as any})}
-              options={[
-                { value: 'project', label: 'PROYECTO' },
-                { value: 'component', label: 'PIEZA / COMP.' },
-                { value: 'study', label: 'ESTUDIO TÉCNICO' },
-              ]}
-              className="min-w-[150px]"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[9px] font-label font-bold uppercase tracking-[0.2em] text-secondary">Estado</span>
-            <Select 
-              value={project.is_published ? 'true' : 'false'}
-              onChange={(val) => setProject({...project, is_published: val === 'true'})}
-              options={[
-                { value: 'false', label: 'BORRADOR' },
-                { value: 'true', label: 'PUBLICADO' },
-              ]}
-              className="min-w-[130px]"
-            />
-          </div>
+
           <button 
             onClick={handleSave}
             disabled={isSaving}
@@ -570,7 +597,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
+              <div className="md:col-span-2 space-y-2">
                 <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Título del Proyecto</label>
                 <input 
                   type="text" 
@@ -581,7 +608,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                   placeholder={`E.g. F1 Helmet Design (${editingLang})`}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="md:col-span-2 space-y-2">
                 <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Slug (URL - Global)</label>
                 <input 
                   type="text" 
@@ -601,6 +628,28 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                   onChange={handleInputChange}
                   className="w-full bg-surface-container-lowest border-b border-outline px-4 py-3 outline-none focus:border-primary font-body text-sm"
                   placeholder="Advanced aerodynamics..."
+                />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Entorno / Workbench</label>
+                <input 
+                  type="text" 
+                  name="workbench" 
+                  value={t(project.workbench)} 
+                  onChange={handleInputChange}
+                  className="w-full bg-surface-container-lowest border-b border-outline px-4 py-3 outline-none focus:border-primary font-label text-[11px] uppercase tracking-wider"
+                  placeholder="PART DESIGN"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">URL de Vista Previa Externa (Opcional)</label>
+                <input 
+                  type="url" 
+                  name="preview_url" 
+                  value={project.preview_url || ''} 
+                  onChange={handleInputChange}
+                  className="w-full bg-surface-container-lowest border-b border-outline px-4 py-3 outline-none focus:border-primary font-body text-sm"
+                  placeholder="https://example.com/demo"
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
@@ -633,34 +682,58 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
 
             <div className="space-y-4">
               {project.project_specs?.map((spec, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end animate-in fade-in slide-in-from-left-2">
-                  <div className="md:col-span-4">
-                    <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em] mb-1">Etiqueta</label>
-                    <input 
-                      type="text" 
-                      value={t(spec.label)}
-                      onChange={(e) => handleSpecChange(index, 'label', e.target.value)}
-                      className="w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus:border-tertiary font-label text-[11px] uppercase tracking-wider"
-                      placeholder="MATERIAL"
-                    />
+                <div key={index} className="bg-surface-container-low p-4 border border-outline-variant animate-in fade-in slide-in-from-left-2">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-[9px] font-bold text-tertiary uppercase tracking-widest">Especificación #{index + 1}</span>
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => removeSpec(index)}
+                        className="text-outline hover:text-error transition-colors"
+                        title="Eliminar especificación"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="md:col-span-7">
-                    <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em] mb-1">Valor</label>
-                    <input 
-                      type="text" 
-                      value={t(spec.value)}
-                      onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                      className="w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus:border-tertiary font-body text-sm"
-                      placeholder="Titanium Grade 5"
-                    />
-                  </div>
-                  <div className="md:col-span-1 flex justify-end">
-                    <button 
-                      onClick={() => removeSpec(index)}
-                      className="p-2 text-outline hover:text-error transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em]">Categoría / Etiqueta</label>
+                      <select 
+                        value={specLabels.find(l => JSON.stringify(l.name) === JSON.stringify(spec.label))?.id || ''}
+                        onChange={(e) => handleSelectLabel(index, e.target.value)}
+                        className="w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus:border-tertiary font-label text-[11px] uppercase tracking-wider h-10"
+                      >
+                        <option value="">-- SELECCIONAR ETIQUETA --</option>
+                        {specLabels.map(label => (
+                          <option key={label.id} value={label.id}>
+                            {label.name[editingLang] || label.name['es']}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em]">Especificación / Valor</label>
+                      <select 
+                        value={specOptions.find(o => JSON.stringify(o.value) === JSON.stringify(spec.value))?.id || ''}
+                        onChange={(e) => handleSelectOption(index, e.target.value)}
+                        disabled={!spec.label.es}
+                        className="w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus:border-tertiary font-body text-sm h-10 disabled:opacity-50"
+                      >
+                        <option value="">-- SELECCIONAR VALOR --</option>
+                        {specOptions
+                          .filter(opt => {
+                            const parentLabel = specLabels.find(l => l.id === opt.label_id);
+                            return parentLabel && JSON.stringify(parentLabel.name) === JSON.stringify(spec.label);
+                          })
+                          .map(option => (
+                            <option key={option.id} value={option.id}>
+                              {option.value[editingLang] || option.value['es']}
+                            </option>
+                          ))
+                        }
+                      </select>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -676,28 +749,34 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         {/* Sidebar / Assets */}
         <div className="space-y-12">
           <section className="bg-surface-container-low p-8 border border-outline-variant">
-            <h4 className="font-headline font-bold uppercase tracking-tight mb-8 text-sm">Hardware & Software</h4>
+            <h4 className="font-headline font-bold uppercase tracking-tight mb-8 text-sm flex items-center gap-3">
+              <span className="w-1 h-4 bg-tertiary"></span>
+              Configuración del Proyecto
+            </h4>
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Entorno / Workbench</label>
-                <input 
-                  type="text" 
-                  name="workbench" 
-                  value={t(project.workbench)} 
-                  onChange={handleInputChange}
-                  className="w-full bg-surface-container-lowest border-b border-outline px-4 py-2 outline-none focus:border-primary font-label text-[11px] uppercase"
-                  placeholder="PART DESIGN"
+                <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Tipo de Contenido</label>
+                <Select 
+                  value={project.project_type}
+                  onChange={(val) => setProject({...project, project_type: val as any})}
+                  options={[
+                    { value: 'project', label: 'PROYECTO' },
+                    { value: 'component', label: 'PIEZA / COMP.' },
+                    { value: 'study', label: 'ESTUDIO TÉCNICO' },
+                  ]}
+                  className="w-full"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Software Principal</label>
-                <input 
-                  type="text" 
-                  name="software" 
-                  value={t(project.software)} 
-                  onChange={handleInputChange}
-                  className="w-full bg-surface-container-lowest border-b border-outline px-4 py-2 outline-none focus:border-primary font-label text-[11px] uppercase"
-                  placeholder="CATIA V5"
+                <label className="block text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">Estado de Visibilidad</label>
+                <Select 
+                  value={project.is_published ? 'true' : 'false'}
+                  onChange={(val) => setProject({...project, is_published: val === 'true'})}
+                  options={[
+                    { value: 'false', label: 'BORRADOR' },
+                    { value: 'true', label: 'PUBLICADO' },
+                  ]}
+                  className="w-full"
                 />
               </div>
             </div>

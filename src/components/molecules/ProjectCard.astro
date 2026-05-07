@@ -23,66 +23,84 @@ const projectUrl = `/${lang}/projects/${project.slug}`;
 ---
 
 
-<a
-  href={projectUrl}
+<div
   class="group relative block bg-surface-container-lowest tech-glow overflow-hidden transition-all duration-300 hover:-translate-y-1"
   id={`project-card-${project.slug}`}
 >
-  <!-- Vertical Annotation -->
-  <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
-    <VerticalText text={project.software} />
-  </div>
-
-  <!-- Thumbnail -->
-  <div class="relative aspect-video overflow-hidden bg-surface-container-high">
-    {project.thumbnail_url ? (
-      <img
-        src={project.thumbnail_url}
-        alt={project.title}
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        loading="lazy"
-        decoding="async"
-      />
-    ) : (
-      <div class="w-full h-full flex items-center justify-center">
-        <span class="font-headline text-6xl font-bold text-primary/10">{displayNumber}</span>
-      </div>
-    )}
-
-    <!-- Overlay on hover -->
-    <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/40 transition-colors duration-300 flex items-center justify-center">
-      <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-headline text-on-primary text-xs uppercase tracking-[0.3em]">
-        {t('projects.view')}
-      </span>
+  <!-- Main Clickable Area -->
+  <a href={projectUrl} class="block">
+    <!-- Vertical Annotation -->
+    <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
+      <VerticalText text={project.software} />
     </div>
-  </div>
 
-  <!-- Content -->
-  <div class="p-6 lg:p-8">
-    <!-- Number + Title -->
-    <div class="flex items-baseline gap-3 mb-2">
-      <span class="font-headline text-2xl font-bold text-primary/20">{displayNumber}</span>
-      <div class="flex flex-col">
-        <span class="font-label text-[0.625rem] uppercase tracking-widest text-tertiary mb-0.5">
-          {t(`projects.type.${project.project_type}`)}
+    <!-- Thumbnail -->
+    <div class="relative aspect-video overflow-hidden bg-surface-container-high">
+      {project.thumbnail_url ? (
+        <img
+          src={project.thumbnail_url}
+          alt={project.title}
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div class="w-full h-full flex items-center justify-center">
+          <span class="font-headline text-6xl font-bold text-primary/10">{displayNumber}</span>
+        </div>
+      )}
+
+      <!-- Overlay on hover -->
+      <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/40 transition-colors duration-300 flex items-center justify-center">
+        <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-headline text-on-primary text-xs uppercase tracking-[0.3em]">
+          {t('projects.view')}
         </span>
-        <h3 class="font-headline text-lg font-semibold text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">
-          {project.title}
-        </h3>
       </div>
     </div>
 
-    <!-- Subtitle -->
-    {project.subtitle && (
-      <p class="text-sm text-outline font-body mb-4 line-clamp-2 whitespace-pre-line">
-        {project.subtitle}
-      </p>
-    )}
+    <!-- Content -->
+    <div class="p-6 lg:p-8 pb-4">
+      <!-- Number + Title -->
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-headline text-2xl font-bold text-primary/20">{displayNumber}</span>
+        <div class="flex flex-col">
+          <span class="font-label text-[0.625rem] uppercase tracking-widest text-tertiary mb-0.5">
+            {t(`projects.type.${project.project_type}`)}
+          </span>
+          <h3 class="font-headline text-lg font-semibold text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">
+            {project.title}
+          </h3>
+        </div>
+      </div>
 
-    <!-- Software Badge -->
+      <!-- Subtitle -->
+      {project.subtitle && (
+        <p class="text-sm text-outline font-body mb-4 line-clamp-2 whitespace-pre-line">
+          {project.subtitle}
+        </p>
+      )}
+    </div>
+  </a>
+
+  <!-- Footer Actions (Outside main link) -->
+  <div class="px-6 lg:px-8 pb-6 lg:pb-8 flex flex-wrap items-center justify-between gap-4">
+    <!-- Software Badges -->
     <div class="flex flex-wrap gap-2">
       <TechBadge label={project.software} />
       {project.workbench && <TechBadge label={project.workbench} variant="secondary" />}
     </div>
+
+    <!-- Preview Link -->
+    {project.preview_url && (
+      <a 
+        href={project.preview_url} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 font-label text-[0.625rem] uppercase tracking-[0.2em] text-tertiary hover:text-tertiary-fixed-dim transition-colors py-1"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        <span>Preview</span>
+      </a>
+    )}
   </div>
-</a>
+</div>

@@ -56,13 +56,22 @@ const t = (field: any) => {
           <div class="w-1 h-6 bg-primary"></div>
           <h3 class="font-headline font-bold uppercase tracking-tight">Archivo de Proyectos</h3>
         </div>
-        <a 
-          href={`/${lang}/admin/projects/new`} 
-          class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2 flex items-center gap-2 transition-all group"
-        >
-          <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
-          <span class="font-label text-[10px] font-bold uppercase tracking-widest">Añadir Proyecto</span>
-        </a>
+        <div class="flex gap-4">
+          <a 
+            href={`/${lang}/admin/specifications`} 
+            class="bg-surface-container-highest hover:bg-surface-container-high text-on-surface px-6 py-2 flex items-center gap-2 transition-all border border-outline-variant group"
+          >
+            <Globe className="w-4 h-4 text-tertiary" />
+            <span class="font-label text-[10px] font-bold uppercase tracking-widest">Gestionar Specs</span>
+          </a>
+          <a 
+            href={`/${lang}/admin/projects/new`} 
+            class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2 flex items-center gap-2 transition-all group"
+          >
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
+            <span class="font-label text-[10px] font-bold uppercase tracking-widest">Añadir Proyecto</span>
+          </a>
+        </div>
       </div>
 
       <div class="overflow-x-auto">

@@ -43,6 +43,7 @@ interface Project {
   model_url?: string;
   sort_order: number;
   is_published: boolean;
+  project_type: 'project' | 'component' | 'study';
   project_specs?: Spec[];
   project_images?: ProjectImage[];
 }
@@ -63,6 +64,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     software: { es: '', en: '' },
     sort_order: 0,
     is_published: false,
+    project_type: 'project',
     project_specs: [],
     project_images: [],
   });
@@ -110,6 +112,7 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         description: typeof data.description === 'string' ? { es: data.description, en: '' } : data.description || { es: '', en: '' },
         workbench: typeof data.workbench === 'string' ? { es: data.workbench, en: '' } : data.workbench || { es: '', en: '' },
         software: typeof data.software === 'string' ? { es: data.software, en: '' } : data.software || { es: '', en: '' },
+        project_type: data.project_type || 'project',
         project_specs: data.project_specs?.map((s: any) => ({
           ...s,
           label: typeof s.label === 'string' ? { es: s.label, en: '' } : s.label || { es: '', en: '' },
@@ -347,7 +350,8 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
         hero_image_url: finalHero,
         model_url: finalModel,
         sort_order: project.sort_order,
-        is_published: project.is_published
+        is_published: project.is_published,
+        project_type: project.project_type
       };
 
       let pId = projectId;
@@ -516,6 +520,19 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
               <ExternalLink className="w-3.5 h-3.5" /> Vista Previa Pública
             </a>
           )}
+          <div className="flex items-center gap-3">
+            <span className="text-[9px] font-label font-bold uppercase tracking-[0.2em] text-secondary">Tipo</span>
+            <Select 
+              value={project.project_type}
+              onChange={(val) => setProject({...project, project_type: val as any})}
+              options={[
+                { value: 'project', label: 'PROYECTO' },
+                { value: 'component', label: 'PIEZA / COMP.' },
+                { value: 'study', label: 'ESTUDIO TÉCNICO' },
+              ]}
+              className="min-w-[150px]"
+            />
+          </div>
           <div className="flex items-center gap-3">
             <span className="text-[9px] font-label font-bold uppercase tracking-[0.2em] text-secondary">Estado</span>
             <Select 

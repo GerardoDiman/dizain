@@ -30,6 +30,9 @@ export const ui = {
     'projects.empty': 'Proyectos cargando — Vuelve pronto.',
     'projects.hash': 'Hash del Proyecto',
     'projects.workbench': 'Workbench Principal',
+    'projects.type.project': 'Ensamblajes',
+    'projects.type.component': 'Piezas Individuales',
+    'projects.type.study': 'Estudios Técnicos',
 
     'projects.specs': 'Especificaciones Técnicas',
     'skills.label': 'Perfil Técnico',
@@ -84,6 +87,9 @@ export const ui = {
     'projects.empty': 'Projects loading — Check back soon.',
     'projects.hash': 'Project Hash',
     'projects.workbench': 'Main Workbench',
+    'projects.type.project': 'Assemblies',
+    'projects.type.component': 'Individual Parts',
+    'projects.type.study': 'Technical Studies',
 
     'projects.specs': 'Technical Specifications',
     'skills.label': 'Technical Profile',

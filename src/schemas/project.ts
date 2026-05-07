@@ -34,6 +34,7 @@ export const ProjectSchema = z.object({
   sort_order: z.number().int(),
   is_published: z.boolean(),
   model_url: z.string().nullable().optional(),
+  project_type: z.enum(['project', 'component', 'study']).default('project'),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
   project_specs: z.array(ProjectSpecSchema).optional(),

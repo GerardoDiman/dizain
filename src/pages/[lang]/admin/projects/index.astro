@@ -95,10 +95,15 @@ const t = (field: any) => {
           </div>
 
           <div class="p-6 flex-1 flex flex-col">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="w-1 h-3 bg-primary"></span>
-              <span class="font-label text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">
-                {t(project.software) || 'INGENIERÍA MECÁNICA'}
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-1 h-3 bg-primary"></span>
+                <span class="font-label text-[9px] font-bold text-secondary uppercase tracking-[0.2em]">
+                  {t(project.software) || 'INGENIERÍA MECÁNICA'}
+                </span>
+              </div>
+              <span class="px-2 py-0.5 bg-surface-container-highest border border-outline-variant font-label text-[7px] font-bold uppercase tracking-widest text-tertiary">
+                {project.project_type === 'project' ? 'Ensamblaje' : project.project_type === 'component' ? 'Pieza' : 'Estudio'}
               </span>
             </div>
             

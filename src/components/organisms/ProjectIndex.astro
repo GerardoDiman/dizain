@@ -26,32 +26,88 @@ const t = useTranslations(lang);
     <!-- Section Header -->
     <div class="relative mb-16 md:mb-20">
       <SectionNumber number="03" class="absolute -top-4 -left-2 md:-left-4" />
-      <div class="relative z-10">
-        <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
-          {t('projects.subtitle')}
-        </span>
-        <h2
-          id="portfolio-heading"
-          class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
-        >
-          {t('projects.title')}
-        </h2>
+      <div class="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+          <span class="font-label text-[0.6875rem] uppercase tracking-[0.3em] text-tertiary">
+            {t('projects.subtitle')}
+          </span>
+          <h2
+            id="portfolio-heading"
+            class="mt-2 font-headline text-3xl md:text-5xl font-bold uppercase tracking-tighter text-on-surface"
+          >
+            {t('projects.title')}
+          </h2>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="flex flex-wrap gap-2" id="project-filters">
+          <button 
+            data-filter="all"
+            class="px-4 py-2 font-label text-[0.625rem] uppercase tracking-widest border border-primary bg-primary text-on-primary transition-all active-filter"
+          >
+            {lang === 'es' ? 'Todos' : 'All'}
+          </button>
+          {['project', 'component', 'study'].map((type) => (
+            <button 
+              data-filter={type}
+              class="px-4 py-2 font-label text-[0.625rem] uppercase tracking-widest border border-outline text-outline hover:border-primary hover:text-primary transition-all"
+            >
+              {t(`projects.type.${type}`)}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
 
     <!-- Project Grid -->
     {projects.length > 0 ? (
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10" id="project-grid">
         {projects.map((project, index) => (
-          <ProjectCard project={project} index={index} />
+          <div data-project-type={project.project_type} class="project-item">
+            <ProjectCard project={project} index={index} />
+          </div>
         ))}
       </div>
     ) : (
       <div class="flex items-center justify-center py-20">
         <p class="font-label text-sm uppercase tracking-[0.2em] text-outline">
-          Projects loading — Check back soon.
+          {t('projects.empty')}
         </p>
       </div>
     )}
   </div>
 </section>
+
+<script>
+  const filterButtons = document.querySelectorAll('#project-filters button');
+  const projectItems = document.querySelectorAll('.project-item');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const filter = button.getAttribute('data-filter');
+
+      // Update UI state
+      filterButtons.forEach(btn => {
+        btn.classList.remove('bg-primary', 'text-on-primary');
+        btn.classList.add('border-outline', 'text-outline');
+      });
+      button.classList.add('bg-primary', 'text-on-primary');
+      button.classList.remove('border-outline', 'text-outline', 'border-primary');
+
+      // Filter items
+      projectItems.forEach(item => {
+        if (filter === 'all' || item.getAttribute('data-project-type') === filter) {
+          (item as HTMLElement).style.display = 'block';
+        } else {
+          (item as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .project-item {
+    transition: all 0.3s ease;
+  }
+</style>

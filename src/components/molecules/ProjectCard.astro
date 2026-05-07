@@ -62,9 +62,14 @@ const projectUrl = `/${lang}/projects/${project.slug}`;
     <!-- Number + Title -->
     <div class="flex items-baseline gap-3 mb-2">
       <span class="font-headline text-2xl font-bold text-primary/20">{displayNumber}</span>
-      <h3 class="font-headline text-lg font-semibold text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">
-        {project.title}
-      </h3>
+      <div class="flex flex-col">
+        <span class="font-label text-[0.625rem] uppercase tracking-widest text-tertiary mb-0.5">
+          {t(`projects.type.${project.project_type}`)}
+        </span>
+        <h3 class="font-headline text-lg font-semibold text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">
+          {project.title}
+        </h3>
+      </div>
     </div>
 
     <!-- Subtitle -->

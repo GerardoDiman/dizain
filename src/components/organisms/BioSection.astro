@@ -51,7 +51,7 @@ const t = useTranslations(lang);
         <div class="space-y-6 max-w-2xl">
           {profile?.bio && profile.bio.length > 0 ? (
             profile.bio.map((paragraph) => (
-              <p class="font-body text-base md:text-lg leading-relaxed text-on-surface-variant">
+              <p class="font-body text-base md:text-lg leading-relaxed text-on-surface-variant whitespace-pre-line">
                 {paragraph}
               </p>
             ))

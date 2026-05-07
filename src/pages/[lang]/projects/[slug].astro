@@ -76,7 +76,7 @@ const mainImage = project?.project_images?.find((img: any) => img.is_hero)?.imag
             <h1 class="text-5xl md:text-6xl font-heading text-primary uppercase leading-[0.85] mb-8 font-bold tracking-tighter">
               {project.title}
             </h1>
-            <p class="text-title-md text-tertiary font-mono tracking-[0.3em] uppercase border-l-2 border-primary/20 pl-6">
+            <p class="text-title-md text-tertiary font-mono tracking-[0.3em] uppercase border-l-2 border-primary/20 pl-6 whitespace-pre-line">
               {project.subtitle}
             </p>
           </div>
@@ -96,7 +96,7 @@ const mainImage = project?.project_images?.find((img: any) => img.is_hero)?.imag
       <div class="lg:col-span-5 space-y-8">
         <div class="relative">
           <div class="absolute -left-4 top-0 w-1 h-full bg-primary/10"></div>
-          <p class="text-body-lg leading-relaxed text-on-surface-variant pl-6">
+          <p class="text-body-lg leading-relaxed text-on-surface-variant pl-6 whitespace-pre-line">
             {project.description}
           </p>
         </div>

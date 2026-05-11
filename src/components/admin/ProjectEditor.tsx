@@ -712,18 +712,18 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em]">Categoría / Etiqueta</label>
-                      <select 
+                      <Select 
                         value={specLabels.find(l => JSON.stringify(l.name) === JSON.stringify(spec.label))?.id || ''}
-                        onChange={(e) => handleSelectLabel(index, e.target.value)}
-                        className="w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus:border-tertiary font-label text-[11px] uppercase tracking-wider h-10"
-                      >
-                        <option value="">-- SELECCIONAR ETIQUETA --</option>
-                        {specLabels.map(label => (
-                          <option key={label.id} value={label.id}>
-                            {label.name[editingLang] || label.name['es']}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => handleSelectLabel(index, val)}
+                        options={[
+                          { value: '', label: '-- SELECCIONAR ETIQUETA --' },
+                          ...specLabels.map(label => ({
+                            value: label.id,
+                            label: label.name[editingLang] || label.name['es']
+                          }))
+                        ]}
+                        className="w-full"
+                      />
                     </div>
                     <div className="space-y-1">
                       <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em]">Especificación / Valor</label>

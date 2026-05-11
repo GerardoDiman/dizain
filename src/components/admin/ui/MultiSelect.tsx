@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, ChevronDown, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Option {
   id: string;
@@ -50,19 +51,22 @@ export default function MultiSelect({
   const selectedOptions = options.filter(opt => selectedIds.includes(opt.id));
 
   return (
-    <div className={`relative w-full ${disabled ? 'opacity-50 pointer-events-none' : ''}`} ref={containerRef}>
+    <div className={`relative w-full flex flex-col gap-1 ${disabled ? 'opacity-50 pointer-events-none' : ''}`} ref={containerRef}>
       <div 
-        className="min-h-10 w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus-within:border-tertiary font-body text-sm flex items-center justify-between cursor-pointer flex-wrap gap-2"
+        className={`w-full min-h-[41px] flex items-center justify-between bg-surface-container-high border-b ${isOpen ? 'border-primary' : 'border-outline'} px-4 py-2 outline-none transition-all hover:bg-surface-container-highest group cursor-pointer flex-wrap gap-2`}
+        style={{ borderRadius: '0px' }}
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex flex-wrap gap-1.5 flex-1">
           {selectedOptions.length === 0 && (
-            <span className="text-secondary">{placeholder}</span>
+            <span className="font-label text-[11px] uppercase tracking-wider text-secondary font-bold truncate">
+              {placeholder}
+            </span>
           )}
           {selectedOptions.map(opt => (
             <span 
               key={opt.id} 
-              className="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-sm flex items-center gap-1 font-label text-[10px] uppercase tracking-wider"
+              className="bg-primary/10 text-primary px-2 py-0.5 rounded-sm flex items-center gap-1 font-label text-[10px] uppercase tracking-wider font-bold"
             >
               {opt.label}
               <button 
@@ -74,32 +78,50 @@ export default function MultiSelect({
             </span>
           ))}
         </div>
-        <ChevronDown className="w-4 h-4 text-secondary flex-shrink-0" />
+        <ChevronDown 
+          size={14} 
+          className={`text-outline transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-primary' : 'group-hover:text-primary'}`} 
+          strokeWidth={3} 
+        />
       </div>
 
-      {isOpen && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-surface-container-highest border border-outline-variant shadow-lg max-h-60 overflow-y-auto">
-          {options.length === 0 ? (
-            <div className="px-3 py-2 text-secondary text-sm italic">No hay opciones disponibles</div>
-          ) : (
-            options.map(opt => {
-              const isSelected = selectedIds.includes(opt.id);
-              return (
-                <div 
-                  key={opt.id}
-                  onClick={() => toggleOption(opt.id)}
-                  className={`px-3 py-2 flex items-center justify-between cursor-pointer text-sm transition-colors ${
-                    isSelected ? 'bg-tertiary/10 text-tertiary font-bold' : 'hover:bg-surface-container-low text-on-surface'
-                  }`}
-                >
-                  <span>{opt.label}</span>
-                  {isSelected && <Check className="w-4 h-4" />}
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && !disabled && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 z-[100] bg-white border border-outline-variant shadow-2xl mt-px overflow-y-auto max-h-60"
+            style={{ borderRadius: '0px' }}
+          >
+            <div className="flex flex-col">
+              {options.length === 0 ? (
+                <div className="px-4 py-3 text-secondary text-[10px] uppercase tracking-widest font-label italic">No hay opciones disponibles</div>
+              ) : (
+                options.map(opt => {
+                  const isSelected = selectedIds.includes(opt.id);
+                  return (
+                    <button
+                      type="button"
+                      key={opt.id}
+                      onClick={(e) => { e.stopPropagation(); toggleOption(opt.id); }}
+                      className={`w-full text-left px-4 py-3 font-label text-[10px] uppercase tracking-widest transition-colors flex items-center justify-between ${
+                        isSelected 
+                          ? 'bg-primary/10 text-primary font-bold' 
+                          : 'text-on-surface hover:bg-surface-container-high'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                      {isSelected && <Check size={14} strokeWidth={3} />}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

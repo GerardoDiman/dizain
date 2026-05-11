@@ -3,7 +3,7 @@ import { supabase } from '@lib/supabase';
 import { Save, Trash2, Plus, Upload, X, Loader2, ChevronLeft, Image as ImageIcon, Box, Globe, Eye, Maximize2, ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast } from '@lib/toast';
 import Select from './ui/Select';
-
+import MultiSelect from './ui/MultiSelect';
 // Declaración para model-viewer
 declare global {
   namespace JSX {
@@ -195,15 +195,28 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
     setProject({ ...project, project_specs: newSpecs });
   };
 
-  const handleSelectOption = (index: number, optionId: string) => {
-    const option = specOptions.find(o => o.id === optionId);
-    if (!option) return;
-
+  const handleMultiSelectOption = (index: number, selectedIds: string[]) => {
     const newSpecs = [...(project.project_specs || [])];
-    newSpecs[index] = {
-      ...newSpecs[index],
-      value: option.value
-    };
+    
+    // Obtenemos las opciones seleccionadas
+    const selectedOptions = specOptions.filter(o => selectedIds.includes(o.id));
+    
+    if (selectedOptions.length === 0) {
+      newSpecs[index] = {
+        ...newSpecs[index],
+        value: { es: '', en: '' }
+      };
+    } else {
+      // Juntamos los textos con coma para cada idioma
+      const valEs = selectedOptions.map(o => o.value.es || '').filter(Boolean).join(', ');
+      const valEn = selectedOptions.map(o => o.value.en || '').filter(Boolean).join(', ');
+      
+      newSpecs[index] = {
+        ...newSpecs[index],
+        value: { es: valEs, en: valEn }
+      };
+    }
+    
     setProject({ ...project, project_specs: newSpecs });
   };
 
@@ -714,25 +727,33 @@ export default function ProjectEditor({ projectId, lang = 'es' }: Props) {
                     </div>
                     <div className="space-y-1">
                       <label className="block text-[8px] font-bold text-secondary uppercase tracking-[0.2em]">Especificación / Valor</label>
-                      <select 
-                        value={specOptions.find(o => JSON.stringify(o.value) === JSON.stringify(spec.value))?.id || ''}
-                        onChange={(e) => handleSelectOption(index, e.target.value)}
-                        disabled={!spec.label.es}
-                        className="w-full bg-surface-container-lowest border-b border-outline px-3 py-2 outline-none focus:border-tertiary font-body text-sm h-10 disabled:opacity-50"
-                      >
-                        <option value="">-- SELECCIONAR VALOR --</option>
-                        {specOptions
+                      {(() => {
+                        const availableOptions = specOptions
                           .filter(opt => {
                             const parentLabel = specLabels.find(l => l.id === opt.label_id);
                             return parentLabel && JSON.stringify(parentLabel.name) === JSON.stringify(spec.label);
                           })
-                          .map(option => (
-                            <option key={option.id} value={option.id}>
-                              {option.value[editingLang] || option.value['es']}
-                            </option>
-                          ))
-                        }
-                      </select>
+                          .map(opt => ({
+                            id: opt.id,
+                            label: opt.value[editingLang] || opt.value['es']
+                          }));
+
+                        const currentValStr = spec.value[editingLang] || spec.value['es'] || '';
+                        const currentValArray = currentValStr.split(', ').map((s: string) => s.trim());
+                        const currentSelectedIds = availableOptions
+                          .filter(opt => currentValArray.includes(opt.label))
+                          .map(opt => opt.id);
+
+                        return (
+                          <MultiSelect
+                            options={availableOptions}
+                            selectedIds={currentSelectedIds}
+                            onChange={(ids) => handleMultiSelectOption(index, ids)}
+                            disabled={!spec.label.es}
+                            placeholder="-- SELECCIONAR VALOR(ES) --"
+                          />
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
